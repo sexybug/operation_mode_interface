@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "string.h": "c",
+        "test.h": "c",
+        "ecb.h": "c",
+        "sm4.h": "c",
+        "cfb.h": "c",
+        "cbc.h": "c",
+        "common.h": "c",
+        "hctr.h": "c"
+    }
+}
