@@ -1,8 +1,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "../../test.h"
-#include "../sm4_modes.h"
+#include "../test.h"
+#include "../../sm4_modes/sm4_modes.h"
 
 int main(int argc, char **argv)
 {
@@ -15,9 +15,10 @@ int main(int argc, char **argv)
                       "30C81C46A35CE411E5FBC1191A0A52EF"
                       "F69F2445DF4F9B17AD2B417BE66C3710";
 
-    uint8_t C_str[] = "BC98B69C0B3AC87B";
-
-    int bit_len = 63*8-1;
+    uint8_t C_str[] = "AC529AF989A62FCE9CDDC5FFB84125CA"
+                      "B168DD69DB3C0EEA1AB16DE6AEA43C59"
+                      "2C15567BFF8F707486C202C7BE59101F"
+                      "74A629B350CD7E11BE99998AF5206D6C";
 
     uint8_t K[16], IV[16], P[64], C[64], enc_out[64], dec_out[64];
     HexString2Hex(K_str, 16, K);
@@ -26,16 +27,17 @@ int main(int argc, char **argv)
     HexString2Hex(C_str, 64, C);
 
     // 加密测试
-    sm4_cfb_enc(1, K, IV, P, bit_len, enc_out);
+    sm4_cbc_enc(K, IV, P, 64, enc_out);
 
     printf("enc:\n");
-    dump_mem(enc_out, (bit_len+7)/8);
+    dump_mem(enc_out, 64);
+    printf("memcmp result: %d\n", memcmp(enc_out, C, 64));
 
     // 解密测试
-    sm4_cfb_dec(1, K, IV, enc_out, bit_len, dec_out);
+    sm4_cbc_dec(K, IV, C, 64, dec_out);
 
     printf("dec:\n");
-    dump_mem(dec_out, (bit_len+7)/8);
-    printf("memcmp result: %d\n", memcmp(dec_out, P, bit_len/8));
+    dump_mem(dec_out, 64);
+    printf("memcmp result: %d\n", memcmp(dec_out, P, 64));
     return 0;
 }

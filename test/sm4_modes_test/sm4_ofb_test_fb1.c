@@ -1,8 +1,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "../../test.h"
-#include "../sm4_modes.h"
+#include "../test.h"
+#include "../../sm4_modes/sm4_modes.h"
 
 int main(int argc, char **argv)
 {
@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     "D476B21CC9F04951F0741D2EF9E09498"
     "1584FC142BF13AA626B82F9D7D076CCE";
 
-    int bit_len = 64*8;
+    int bit_len = 63*8-1;
 
     uint8_t K[16], IV[16], P[64], C[64], enc_out[64], dec_out[64];
     HexString2Hex(K_str, 16, K);
@@ -30,17 +30,16 @@ int main(int argc, char **argv)
     HexString2Hex(C_str, 64, C);
 
     // 加密测试
-    sm4_ofb_enc(128, K, IV, P, bit_len, enc_out);
+    sm4_ofb_enc(1, K, IV, P, bit_len, enc_out);
 
     printf("enc:\n");
-    dump_mem(enc_out, bit_len/8);
-    printf("memcmp result: %d\n", memcmp(enc_out, C, bit_len/8));
+    dump_mem(enc_out, (bit_len+7)/8);
 
     // 解密测试
-    sm4_ofb_dec(128, K, IV, C, bit_len, dec_out);
+    sm4_ofb_dec(1, K, IV, enc_out, bit_len, dec_out);
 
     printf("dec:\n");
-    dump_mem(dec_out, bit_len/8);
+    dump_mem(dec_out, (bit_len+7)/8);
     printf("memcmp result: %d\n", memcmp(dec_out, P, bit_len/8));
     return 0;
 }

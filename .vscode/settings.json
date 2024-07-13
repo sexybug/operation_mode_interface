@@ -7,6 +7,12 @@
         "cfb.h": "c",
         "cbc.h": "c",
         "common.h": "c",
-        "hctr.h": "c"
+        "hctr.h": "c",
+        "des.h": "c",
+        "alignment.h": "c",
+        "stdlib.h": "c",
+        "3des.h": "c",
+        "sm4_modes.h": "c",
+        "aes.h": "c"
     }
 }

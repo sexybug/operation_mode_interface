@@ -1,8 +1,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "../../test.h"
-#include "../sm4_modes.h"
+#include "../test.h"
+#include "../../sm4_modes/sm4_modes.h"
 
 int main(int argc, char **argv)
 {
@@ -15,10 +15,10 @@ int main(int argc, char **argv)
                          "30C81C46A35CE411E5FBC1191A0A52EF"
                          "F69F2445DF4F9B17AD2B417BE66C3710";
 
-    uint8_t C_str[] = "AC529AF989A62FCE9CDDC5FFB84125CA"
-                         "FB8CDE77339FFE481D113C40BBD5B678"
-                         "6FFC9916F98F94FF12D78319707E2404"
-                         "28718707605BC1EAC503153EBAA0FB1D";
+    uint8_t C_str[] = "A51411FF04A711443891FCE7AB842A29"
+                         "D5B50F46A9A730A0F590FFA776D99855"
+                         "C9A86A4D71447F4E873ADA4F388AF9B9"
+                         "2B25557B50514D155939E6EC940AD90E";
 
     uint8_t K[16], IV[16], P[64], C[64], enc_out[64], dec_out[64];
     HexString2Hex(K_str, 16, K);
@@ -27,14 +27,14 @@ int main(int argc, char **argv)
     HexString2Hex(C_str, 64, C);
 
     // 加密测试
-    sm4_bc_enc(K, IV, P, 64, enc_out);
+    sm4_ecb_enc(K, P, 64, enc_out);
 
     printf("enc:\n");
     dump_mem(enc_out, 64);
     printf("memcmp result: %d\n", memcmp(enc_out, C, 64));
 
     // 解密测试
-    sm4_bc_dec(K, IV, C, 64, dec_out);
+    sm4_ecb_dec(K, C, 64, dec_out);
 
     printf("dec:\n");
     dump_mem(dec_out, 64);

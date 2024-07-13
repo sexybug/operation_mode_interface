@@ -1,8 +1,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "../../test.h"
-#include "../sm4_modes.h"
+#include "../test.h"
+#include "../../sm4_modes/sm4_modes.h"
 
 int main(int argc, char **argv)
 {
