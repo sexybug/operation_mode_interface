@@ -21,6 +21,7 @@
         "des_modes.h": "c",
         "cbc_mac.h": "c",
         "cmac.h": "c",
-        "ofbnlf.h": "c"
+        "ofbnlf.h": "c",
+        "err.h": "c"
     }
 }
