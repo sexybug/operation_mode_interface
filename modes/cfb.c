@@ -26,7 +26,7 @@ static void XOR(const uint8_t *X, const uint8_t *Y, int len, uint8_t *Z)
  * @param n 移位位数
  * @param dst 输出
  */
-void left_move_n_bit(const uint8_t *src, int src_bit_len, int n, uint8_t *dst)
+static void left_move_n_bit(const uint8_t *src, int src_bit_len, int n, uint8_t *dst)
 {
     int i;
     int stat_index = n / 8;
@@ -73,7 +73,7 @@ static void update_FB(uint8_t *FB, int FB_len, const uint8_t *F, int F_len)
 }
 
 // CFB反馈1bit加密
-void cfb_enc_fb1(block_f_ptr enc, int n, const uint8_t *K, const uint8_t *IV, const uint8_t *P, int bit_len, uint8_t *C)
+static void cfb_enc_fb1(block_f_ptr enc, int n, const uint8_t *K, const uint8_t *IV, const uint8_t *P, int bit_len, uint8_t *C)
 {
     uint8_t Y[16], FB[16];
 
@@ -107,7 +107,7 @@ void cfb_enc_fb1(block_f_ptr enc, int n, const uint8_t *K, const uint8_t *IV, co
     }
 }
 // CFB反馈1bit解密
-void cfb_dec_fb1(block_f_ptr enc, int n, const uint8_t *K, const uint8_t *IV, const uint8_t *C, int bit_len, uint8_t *P)
+static void cfb_dec_fb1(block_f_ptr enc, int n, const uint8_t *K, const uint8_t *IV, const uint8_t *C, int bit_len, uint8_t *P)
 {
     uint8_t Y[16], FB[16];
 

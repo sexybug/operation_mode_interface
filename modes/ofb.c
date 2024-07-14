@@ -19,7 +19,7 @@ static void XOR(const uint8_t *X, const uint8_t *Y, int len, uint8_t *Z)
 }
 
 // OFB反馈1bit加密
-void ofb_enc_fb1(block_f_ptr enc, int n, const uint8_t *K, const uint8_t *IV, const uint8_t *P, int bit_len, uint8_t *C)
+static void ofb_enc_fb1(block_f_ptr enc, int n, const uint8_t *K, const uint8_t *IV, const uint8_t *P, int bit_len, uint8_t *C)
 {
     uint8_t X[16], Y[16];
 

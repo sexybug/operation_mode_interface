@@ -248,7 +248,7 @@ static void key_extension(const uint32_t *MK, uint32_t *rk)
  * @param key
  * @param rk
  */
-void SM4_KeySchedule(const uint8_t *key, uint32_t *rk)
+static void SM4_KeySchedule(const uint8_t *key, uint32_t *rk)
 {
     uint32_t MK[4];
     u8_2_u32_128(key, MK);
