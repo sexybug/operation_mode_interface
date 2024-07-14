@@ -18,6 +18,9 @@
         "ccm.h": "c",
         "aes_ccm.h": "c",
         "gcm.h": "c",
-        "des_modes.h": "c"
+        "des_modes.h": "c",
+        "cbc_mac.h": "c",
+        "cmac.h": "c",
+        "ofbnlf.h": "c"
     }
 }

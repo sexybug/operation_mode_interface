@@ -71,5 +71,6 @@ cc_status_t des_bc_dec(const uint8_t *key, int key_len, const uint8_t iv[8], con
 
 
 cc_status_t des_cbc_mac(const uint8_t *key, int key_len, const uint8_t *in, int in_len, uint8_t mac[8]);
+cc_status_t des_cmac(const uint8_t *key, int key_len, const uint8_t *in, int in_len, uint8_t mac[8]);
 
 #endif // _DES_MODES_H_

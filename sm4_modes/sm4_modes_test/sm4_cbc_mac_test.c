@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     uint8_t K[16], IV[16], P[64], C[64], enc_out[64], dec_out[64];
     HexString2Hex(K_str, 16, K);
     HexString2Hex(P_str, 64, P);
-    HexString2Hex(C_str, 64, C);
+    HexString2Hex(C_str, 16, C);
 
     // 测试
     sm4_cbc_mac(K, P, 64, enc_out);

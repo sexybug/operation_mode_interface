@@ -11,6 +11,7 @@
 #include "../modes/bc.h"
 #include "../modes/ofbnlf.h"
 #include "../modes/cbc_mac.h"
+#include "../modes/cmac.h"
 
 /* block size in bytes */
 #define BLOCK_SIZE 16
@@ -491,6 +492,24 @@ cc_status_t aes_cbc_mac(const uint8_t *key, int key_len, const uint8_t *in, int 
     else
     {
         cbc_mac(aes256_enc, BLOCK_SIZE, key, in, in_len, mac);
+    }
+
+    return CC_SUCCESS;
+}
+
+cc_status_t aes_cmac(const uint8_t *key, int key_len, const uint8_t *in, int in_len, uint8_t mac[16])
+{
+    if (key_len == 16)
+    {
+        cmac(aes128_enc, BLOCK_SIZE, key, in, in_len, mac);
+    }
+    else if (key_len == 24)
+    {
+        cmac(aes192_enc, BLOCK_SIZE, key, in, in_len, mac);
+    }
+    else
+    {
+        cmac(aes256_enc, BLOCK_SIZE, key, in, in_len, mac);
     }
 
     return CC_SUCCESS;

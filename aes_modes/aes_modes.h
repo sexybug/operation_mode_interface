@@ -102,5 +102,6 @@ cc_status_t aes_bc_enc(const uint8_t *key, int key_len, const uint8_t iv[16], co
 cc_status_t aes_bc_dec(const uint8_t *key, int key_len, const uint8_t iv[16], const uint8_t *in, int in_len, uint8_t *out);
 
 cc_status_t aes_cbc_mac(const uint8_t *key, int key_len, const uint8_t *in, int in_len, uint8_t mac[16]);
+cc_status_t aes_cmac(const uint8_t *key, int key_len, const uint8_t *in, int in_len, uint8_t mac[16]);
 
 #endif // _AES_MODES_H_

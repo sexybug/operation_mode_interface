@@ -15,10 +15,10 @@ int main(int argc, char **argv)
                       "000102030405060708090A0B0C0D0E0F"
                       "000102030405060708090A0B0C0D0E0F";
 
-    uint8_t C_str[] = "2D70A27367564009D2FA9A5D0FA0D04D";
+    uint8_t C_str[] = "BB1D6929E95937287FA37D129B756746";
 
     int key_len = 16;
-    int in_len = 64;
+    int in_len = 0;
 
     uint8_t K[32], IV[16], P[64], C[64], enc_out[64], dec_out[64];
     HexString2Hex(K_str, key_len, K);
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     HexString2Hex(C_str, 16, C);
 
     // 加密测试
-    aes_cbc_mac(K, key_len, P, in_len, enc_out);
+    aes_cmac(K, key_len, P, in_len, enc_out);
 
     printf("enc:\n");
     dump_mem(enc_out, 16);

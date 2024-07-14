@@ -10,12 +10,12 @@ int main(int argc, char **argv)
 
     uint8_t IV_str[] = "00000000000000000000000000000000";
 
-    uint8_t P_str[] = "000102030405060708090A0B0C0D0E0F"
-                      "000102030405060708090A0B0C0D0E0F"
-                      "000102030405060708090A0B0C0D0E0F"
-                      "000102030405060708090A0B0C0D0E0F";
+    uint8_t P_str[] = "6BC1BEE22E409F96E93D7E117393172A"
+                      "AE2D8A571E03AC9C9EB76FAC45AF8E51"
+                      "30C81C46A35CE411E5FBC1191A0A52EF"
+                      "F69F2445DF4F9B17AD2B417BE66C3710";
 
-    uint8_t C_str[] = "2D70A27367564009D2FA9A5D0FA0D04D";
+    uint8_t C_str[] = "51F0BEBF7E3B9D92FC49741779363CFE";
 
     int key_len = 16;
     int in_len = 64;
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     HexString2Hex(C_str, 16, C);
 
     // 加密测试
-    aes_cbc_mac(K, key_len, P, in_len, enc_out);
+    aes_cmac(K, key_len, P, in_len, enc_out);
 
     printf("enc:\n");
     dump_mem(enc_out, 16);

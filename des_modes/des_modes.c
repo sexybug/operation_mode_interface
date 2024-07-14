@@ -8,6 +8,7 @@
 #include "../modes/ctr.h"
 #include "../modes/bc.h"
 #include "../modes/cbc_mac.h"
+#include "../modes/cmac.h"
 
 /* block size in bytes */
 #define BLOCK_SIZE 8
@@ -366,6 +367,24 @@ cc_status_t des_cbc_mac(const uint8_t *key, int key_len, const uint8_t *in, int 
     else
     {
         cbc_mac(des3_3key_enc, BLOCK_SIZE, key, in, in_len, mac);
+    }
+
+    return CC_SUCCESS;
+}
+
+cc_status_t des_cmac(const uint8_t *key, int key_len, const uint8_t *in, int in_len, uint8_t mac[8])
+{
+    if(key_len == 8)
+    {
+        cmac(des_enc, BLOCK_SIZE, key, in, in_len, mac);
+    }
+    else if(key_len == 16)
+    {
+        cmac(des3_2key_enc, BLOCK_SIZE, key, in, in_len, mac);
+    }
+    else
+    {
+        cmac(des3_3key_enc, BLOCK_SIZE, key, in, in_len, mac);
     }
 
     return CC_SUCCESS;

@@ -11,6 +11,7 @@
 #include "../modes/bc.h"
 #include "../modes/ofbnlf.h"
 #include "../modes/cbc_mac.h"
+#include "../modes/cmac.h"
 
 /* block size in bytes */
 #define BLOCK_SIZE 16
@@ -237,6 +238,13 @@ cc_status_t sm4_cbc_mac(const uint8_t key[16], const uint8_t *in, int in_len, ui
     }
 
     cbc_mac(sm4_enc, BLOCK_SIZE, key, in, in_len, mac);
+
+    return CC_SUCCESS;
+}
+
+cc_status_t sm4_cmac(const uint8_t key[16], const uint8_t *in, int in_len, uint8_t mac[16])
+{
+    cmac(sm4_enc, BLOCK_SIZE, key, in, in_len, mac);
 
     return CC_SUCCESS;
 }
