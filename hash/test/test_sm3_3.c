@@ -9,16 +9,17 @@
  *
  */
 #include "../sm3.h"
-#include "../../test.h"
+#include "../../test/test.h"
 #include <stdio.h>
 
 int main(int argc, char **argv)
 {
-    uint8_t m_str[6] = "616263";
+    uint8_t m_str[] = "616263";
     uint8_t hash_str[] = "66c7f0f462eeedd9d1f2d46bdc10e4e24167c4875cf2f7a2297da02b8f4ba8e0";
+
     uint8_t m[3];
     int mlen = 3;
-    HexString2Hex(m_str, mlen * 2, m);
+    HexString2Hex(m_str, mlen, m);
     uint8_t out[32];
 
     sm3_ctx_t ctx;
