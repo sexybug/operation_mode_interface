@@ -17,6 +17,7 @@
         "align.h": "c",
         "ccm.h": "c",
         "aes_ccm.h": "c",
-        "gcm.h": "c"
+        "gcm.h": "c",
+        "des_modes.h": "c"
     }
 }

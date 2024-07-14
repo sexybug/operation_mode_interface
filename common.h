@@ -16,4 +16,6 @@ typedef enum {
  */
 typedef void (*block_f_ptr)(const uint8_t *key, const uint8_t *in, uint8_t *out);
 
+
+
 #endif // _COMMON_H_

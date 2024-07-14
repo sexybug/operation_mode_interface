@@ -1,4 +1,13 @@
-
+/**
+ * @file cbc_mac.h
+ * @author your name (you@domain.com)
+ * @brief A implenentation of FIPS 113 CBC-MAC. Attentation: The FIPS 113 was withdrawn on September 1, 2008.
+ * @version 0.1
+ * @date 2024-07-14
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
 #ifndef _CBC_MAC_H_
 #define _CBC_MAC_H_
 
