@@ -27,7 +27,9 @@ typedef struct
 
 int ccm_init(CCM_CTX *ctx, cipher_f cipher, CCM_ENC_DEC_MODE enc_dec, const uint8_t *key, uint8_t key_len, const uint8_t *nonce, uint8_t nonce_len, uint64_t AData_len, uint64_t message_len, uint8_t tag_len);
 void ccm_updateAData(CCM_CTX *ctx, const uint8_t *AData, int len, bool is_last);
+//注意：out数组长度必须大于等于16字节，否则可能发生数组越界
 void ccm_update(CCM_CTX *ctx, const uint8_t *in, int in_len, uint8_t *out, int *out_len);
+//注意：out数组长度必须大于等于16字节，否则可能发生数组越界
 void ccm_final(CCM_CTX *ctx, uint8_t *out, int *out_len, uint8_t *tag);
 
 #endif // _CCM_H_
