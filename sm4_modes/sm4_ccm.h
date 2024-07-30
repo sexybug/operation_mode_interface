@@ -15,7 +15,6 @@ typedef struct
  * @param ctx
  * @param enc_dec
  * @param key
- * @param key_len
  * @param nonce
  * @param nonce_len 范围：[7,13]
  * @param AData_len 范围：[0,2^64)
