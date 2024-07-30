@@ -97,8 +97,9 @@ void ctr_final(CTR_CTX *ctx, uint8_t *out, int *out_len)
     int rest_len = ctx->total_len % block_len;
     if (rest_len > 0)
     {
-        ctx->cipher(ctx->key, ctx->ctr, out);
-        XOR(out, out, ctx->in_buf, rest_len);
+        __align4 uint8_t T[16];
+        ctx->cipher(ctx->key, ctx->ctr, T);
+        XOR(out, T, ctx->in_buf, rest_len);
         ctr_increase(ctx->ctr, block_len);
         *out_len += rest_len;
     }

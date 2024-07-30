@@ -42,7 +42,7 @@ void sm4_ccm_updateAData(SM4_CCM_CTX *ctx, const uint8_t *AData, int len, bool i
  * @param ctx
  * @param in
  * @param in_len
- * @param out
+ * @param out 
  * @param out_len
  */
 void sm4_ccm_update(SM4_CCM_CTX *ctx, const uint8_t *in, int in_len, uint8_t *out, int *out_len);
@@ -51,7 +51,7 @@ void sm4_ccm_update(SM4_CCM_CTX *ctx, const uint8_t *in, int in_len, uint8_t *ou
  * @brief 输出tag和非整分组加密/解密结果out。如果总输入数据长度%16=0，则无out。
  *
  * @param ctx
- * @param out
+ * @param out 
  * @param out_len
  * @param tag
  */

@@ -65,9 +65,9 @@ typedef struct
 void gcm_init(GCM_CTX *ctx, cipher_f cipher, GCM_ENC_DEC_MODE enc_dec,
               const uint8_t *K, int K_len, const uint8_t *IV, int IV_len, int TAG_len);
 void gcm_updateAAD(GCM_CTX *ctx, const uint8_t *AAD, int AAD_len, bool is_last);
-//注意：out数组长度必须大于等于16字节，否则可能发生数组越界
+
 void gcm_update(GCM_CTX *ctx, const uint8_t *in, int in_len, uint8_t *out, int *out_len);
-//注意：out数组长度必须大于等于16字节，否则可能发生数组越界
+
 void gcm_final(GCM_CTX *ctx, uint8_t *out, int *out_len, uint8_t *Tag);
 
 #endif //_GCM_H_
