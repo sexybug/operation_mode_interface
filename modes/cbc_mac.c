@@ -20,11 +20,10 @@ static void XOR(const uint8_t *X, const uint8_t *Y, int len, uint8_t *Z)
 void cbc_mac(block_f_ptr enc, int n, const uint8_t *K, const uint8_t *D, int len, uint8_t *C)
 {
     uint8_t Opre[16], Ebuf[16];
+    
+    memset(Opre, 0, n);
 
-    enc(K, D, Opre);
-    D += n;
-
-    int i = 2;
+    int i = 1;
     while (i <= len / n)
     {
         XOR(D, Opre, n, Ebuf);
@@ -32,8 +31,9 @@ void cbc_mac(block_f_ptr enc, int n, const uint8_t *K, const uint8_t *D, int len
         D += n;
         i++;
     }
+    
     int d = len % n;
-    if (len % n != 0)
+    if (d != 0)
     {
         memcpy(Ebuf, D, d);
         memset(Ebuf + d, 0, n - d);

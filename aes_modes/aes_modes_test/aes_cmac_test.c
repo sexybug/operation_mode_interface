@@ -15,7 +15,7 @@ int main(int argc, char **argv)
                       "000102030405060708090A0B0C0D0E0F"
                       "000102030405060708090A0B0C0D0E0F";
 
-    uint8_t C_str[] = "BB1D6929E95937287FA37D129B756746";
+    //uint8_t C_str[] = "BB1D6929E95937287FA37D129B756746";
 
     int key_len = 16;
     int in_len = 0;
@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     HexString2Hex(K_str, key_len, K);
     HexString2Hex(IV_str, 16, IV);
     HexString2Hex(P_str, in_len, P);
-    HexString2Hex(C_str, 16, C);
+    //HexString2Hex(C_str, 16, C);
 
     // 加密测试
     aes_cmac(K, key_len, P, in_len, enc_out);

@@ -21,7 +21,7 @@
  * @param n 算法分组长度（in bytes）
  * @param K 密钥
  * @param D Data
- * @param len Data Length（in bytes）, can be any integer >= 0
+ * @param len Data Length（in bytes）, can be any integer > 0
  * @param C  Message Authentication Code
  */
 void cbc_mac(block_f_ptr enc, int n, const uint8_t *K, const uint8_t *D, int len, uint8_t *C);
