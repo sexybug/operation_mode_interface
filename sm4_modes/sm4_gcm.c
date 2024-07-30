@@ -2,9 +2,9 @@
 #include "sm4_gcm.h"
 #include "../sm4/sm4.h"
 
-void sm4_gcm_init(SM4_GCM_CTX *ctx, GCM_ENC_DEC_MODE enc_dec, const uint8_t *key, int key_len, const uint8_t *IV, int IV_len, int TAG_len)
+void sm4_gcm_init(SM4_GCM_CTX *ctx, GCM_ENC_DEC_MODE enc_dec, const uint8_t *key, const uint8_t *IV, int IV_len, int TAG_len)
 {
-    gcm_init(&(ctx->gcm), sm4_enc, enc_dec, key, key_len, IV, IV_len, TAG_len);
+    gcm_init(&(ctx->gcm), sm4_enc, enc_dec, key, 16, IV, IV_len, TAG_len);
 }
 
 void sm4_gcm_updateAAD(SM4_GCM_CTX *ctx, const uint8_t *AAD, int AAD_len, bool is_last)

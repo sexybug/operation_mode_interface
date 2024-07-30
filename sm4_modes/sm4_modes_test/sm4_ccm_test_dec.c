@@ -36,7 +36,7 @@ ED31A2F04476C18BB40C84A74B97DC5B";
     HexString2Hex(T_str, T_len, std_T);
 
     SM4_CCM_CTX ctx;
-    int ret = sm4_ccm_init(&ctx, CCM_DECRYPT, std_K, K_len, std_N, N_len, A_len, P_len, T_len);
+    int ret = sm4_ccm_init(&ctx, CCM_DECRYPT, std_K, std_N, N_len, A_len, P_len, T_len);
     if (ret != 1)
     {
         return -1;

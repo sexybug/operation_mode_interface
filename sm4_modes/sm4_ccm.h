@@ -23,7 +23,7 @@ typedef struct
  * @param tag_len   范围：{4,6,8,10,12,14,16}
  * @return int 失败值: -1, 成功值: 1
  */
-int sm4_ccm_init(SM4_CCM_CTX *ctx, CCM_ENC_DEC_MODE enc_dec, const uint8_t *key, int key_len, const uint8_t *nonce, uint8_t nonce_len, uint64_t AData_len, uint64_t message_len, uint8_t tag_len);
+int sm4_ccm_init(SM4_CCM_CTX *ctx, CCM_ENC_DEC_MODE enc_dec, const uint8_t *key, const uint8_t *nonce, uint8_t nonce_len, uint64_t AData_len, uint64_t message_len, uint8_t tag_len);
 
 /**
  * @brief 持续更新AData

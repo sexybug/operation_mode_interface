@@ -35,7 +35,7 @@ A56834CBCF98C397B4024A2691233B8D";
     HexString2Hex(T_str, 16, std_T);
 
     SM4_GCM_CTX ctx;
-    sm4_gcm_init(&ctx, GCM_ENCRYPT, std_K, K_len, std_IV, IV_len, 16);
+    sm4_gcm_init(&ctx, GCM_ENCRYPT, std_K, std_IV, IV_len, 16);
 
     int out_len1, out_len2;
     sm4_gcm_updateAAD(&ctx, std_AAD, AAD_len, 1);
