@@ -85,7 +85,7 @@ static void GF2_128_Multiply(const uint8_t *U, const uint8_t *V, uint8_t *W)
 
 void xts_enc(block_f_ptr enc, int n, const uint8_t *K1, const uint8_t *K2, const uint8_t *TW, const uint8_t *P, int len, uint8_t *C)
 {
-    uint8_t ETW[16], alpha[16], T[16], X[16], Y[16], Z[16];
+    uint8_t ETW[16], alpha[16], T[16], X[16], Y[16], Z[16], Cq[16];
 
     enc(K2, TW, ETW);
     int i = 1;
@@ -115,10 +115,10 @@ void xts_enc(block_f_ptr enc, int n, const uint8_t *K1, const uint8_t *K2, const
         GF2_128_Multiply(ETW, alpha, T);
         XOR(Z, T, n, X);
         enc(K1, X, Y);
-        XOR(Y, T, n, C);
+        XOR(Y, T, n, Cq);
 
         memcpy(Z, C - n, n);
-        memcpy(C - n, C, n);
+        memcpy(C - n, Cq, n);
         memcpy(C, Z, d);
     }
 }
