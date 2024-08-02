@@ -47,7 +47,7 @@ static void ofb_enc_fb1(block_f_ptr enc, int n, const uint8_t *K, const uint8_t 
             stream = (stream << 1) | ((Y[0] & 0x80) >> 7);
             memcpy(X, Y, n);
         }
-        C[i] = ((P[i]>>8-rest_bit) ^ stream) << (8 - rest_bit);
+        C[i] = ((P[i]>>(8-rest_bit)) ^ stream) << (8 - rest_bit);
     }
 }
 
