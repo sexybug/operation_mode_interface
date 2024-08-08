@@ -77,7 +77,7 @@ cc_status_t aes_ctr_dec(const uint8_t *key, int key_len, const uint8_t iv[16], c
  * @param len the length of the input data in bytes
  * @param C the output buffer where the encrypted data will be stored
  *
- * @return CC_SUCCESS if the encryption is successful, CC_LENGTH_ERROR if the input length is not a multiple of 16 or equal to 0
+ * @return CC_SUCCESS if the encryption is successful, CC_LENGTH_ERROR if the input length is less than 16
  */
 cc_status_t aes_xts_enc(const uint8_t *K1, const uint8_t *K2, int key_len, const uint8_t TW[16], const uint8_t *P, int len, uint8_t *C);
 cc_status_t aes_xts_dec(const uint8_t *K1, const uint8_t *K2, int key_len, const uint8_t TW[16], const uint8_t *C, int len, uint8_t *P);
@@ -93,7 +93,7 @@ cc_status_t aes_xts_dec(const uint8_t *K1, const uint8_t *K2, int key_len, const
  * @param len the length of the input data in bytes
  * @param C the output buffer where the encrypted data will be stored
  *
- * @return CC_SUCCESS if the encryption is successful, CC_LENGTH_ERROR if the input length is not a multiple of 16 or equal to 0
+ * @return CC_SUCCESS if the encryption is successful, CC_LENGTH_ERROR if the input length is less than 16
  */
 cc_status_t aes_hctr_enc(const uint8_t *K1, int key_len, const uint8_t K2[16], const uint8_t TW[16], const uint8_t *P, int len, uint8_t *C);
 cc_status_t aes_hctr_dec(const uint8_t *K1, int key_len, const uint8_t K2[16], const uint8_t TW[16], const uint8_t *C, int len, uint8_t *P);
