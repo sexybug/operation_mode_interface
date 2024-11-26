@@ -7,7 +7,7 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${file}","${workspaceFolder}/test.c","${workspaceFolder}/sm4/sm4.c",
+                "${file}","${workspaceFolder}/test/test.c","${workspaceFolder}/sm4/sm4.c",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}.exe"
             ],
