@@ -68,3 +68,58 @@ void print_binary(const uint8_t *ptr, int len)
     }
     printf("\n");
 }
+
+void print_u8(const char *title, const uint8_t *ptr, size_t len)
+{
+    printf("uint8_t %s[%d] = {\n", title, len);
+    for (size_t i = 0; i < len; i++)
+    {
+        if (i % 16 == 0)
+        {
+            printf("    ");
+        }
+        printf("0x%02x, ", ptr[i]);
+        if ((i + 1) % 16 == 0 || ((i + 1) == len && (i + 1) % 16 != 0))
+        {
+            printf("\n");
+        }
+    }
+    printf("};\n\n");
+}
+
+void print_u32(const char *title, const uint32_t *ptr, size_t len)
+{
+    printf("uint32_t %s[%d] = {\n", title, len);
+    for (size_t i = 0; i < len; i++)
+    {
+        if (i % 8 == 0)
+        {
+            printf("    ");
+        }
+        printf("0x%08x, ", ptr[i]);
+        if ((i + 1) % 8 == 0 || ((i + 1) == len && (i + 1) % 8 != 0))
+        {
+            printf("\n");
+        }
+    }
+    printf("};\n\n");
+}
+
+void print_u64(const char *title, const uint64_t *ptr, size_t len)
+{
+    printf("uint64_t %s[%d] = {\n", title, len);
+    for (size_t i = 0; i < len; i++)
+    {
+        if (i % 4 == 0)
+        {
+            printf("    ");
+        }
+        printf("0x%016lx, ", ptr[i]);
+        if ((i + 1) % 4 == 0 || ((i + 1) == len && (i + 1) % 4 != 0))
+        {
+            printf("\n");
+        }
+    }
+    printf("};\n\n");
+}
+

@@ -22,6 +22,10 @@
         "cbc_mac.h": "c",
         "cmac.h": "c",
         "ofbnlf.h": "c",
-        "err.h": "c"
-    }
+        "err.h": "c",
+        "aes_gcm.h": "c",
+        "cbc_mac_update.h": "c",
+        "ctr_update.h": "c"
+    },
+    "Codegeex.RepoIndex": true
 }

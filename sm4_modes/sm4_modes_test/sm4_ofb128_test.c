@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     "D476B21CC9F04951F0741D2EF9E09498"
     "1584FC142BF13AA626B82F9D7D076CCE";
 
-    int bit_len = 64*8;
+    int bit_len = 63*8;
 
     uint8_t K[16], IV[16], P[64], C[64], enc_out[64], dec_out[64];
     HexString2Hex(K_str, 16, K);

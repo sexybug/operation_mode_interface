@@ -61,7 +61,7 @@ void ofb_enc(block_f_ptr enc, int n, int k, const uint8_t *K, const uint8_t *IV,
 
     uint8_t X[16], Y[16];
 
-    int i = 1, q = bit_len / k;
+    int i = 1, q = bit_len / k, rest_byte_len = (bit_len % k) / 8;
     int fb_byte_num = k / 8;
 
     memcpy(X, IV, n);
@@ -74,6 +74,12 @@ void ofb_enc(block_f_ptr enc, int n, int k, const uint8_t *K, const uint8_t *IV,
         P += fb_byte_num;
         C += fb_byte_num;
         i++;
+    }
+
+    if (rest_byte_len != 0)
+    {
+        enc(K, X, Y);
+        XOR(P, Y, rest_byte_len, C);
     }
 }
 

@@ -93,7 +93,7 @@ void xts_enc(block_f_ptr enc, int n, const uint8_t *K1, const uint8_t *K2, const
     {
         // alpha^(i-1)
         memset(alpha, 0, n);
-        alpha[(i - 1) / 8] = 0x80 >> ((i - 1) % 8);
+        alpha[((i - 1) / 8) % n] = 0x80 >> ((i - 1) % 8);
         GF2_128_Multiply(ETW, alpha, T);
 
         XOR(P, T, n, X);
@@ -111,7 +111,7 @@ void xts_enc(block_f_ptr enc, int n, const uint8_t *K1, const uint8_t *K2, const
         memcpy(Z + d, C - n + d, n - d);
 
         memset(alpha, 0, n);
-        alpha[(i - 1) / 8] = 0x80 >> ((i - 1) % 8);
+        alpha[((i - 1) / 8) % n] = 0x80 >> ((i - 1) % 8);
         GF2_128_Multiply(ETW, alpha, T);
         XOR(Z, T, n, X);
         enc(K1, X, Y);
@@ -137,7 +137,7 @@ void xts_dec(block_f_ptr enc, block_f_ptr dec, int n, const uint8_t *K1, const u
         while (i <= q)
         {
             memset(alpha, 0, n);
-            alpha[(i - 1) / 8] = 0x80 >> ((i - 1) % 8);
+            alpha[((i - 1) / 8) % n] = 0x80 >> ((i - 1) % 8);
             GF2_128_Multiply(ETW, alpha, T);
 
             XOR(C, T, n, X);
@@ -154,7 +154,7 @@ void xts_dec(block_f_ptr enc, block_f_ptr dec, int n, const uint8_t *K1, const u
         while (i <= q - 2)
         {
             memset(alpha, 0, n);
-            alpha[(i - 1) / 8] = 0x80 >> ((i - 1) % 8);
+            alpha[((i - 1) / 8) % n] = 0x80 >> ((i - 1) % 8);
             GF2_128_Multiply(ETW, alpha, T);
 
             XOR(C, T, n, X);
@@ -167,7 +167,7 @@ void xts_dec(block_f_ptr enc, block_f_ptr dec, int n, const uint8_t *K1, const u
         }
 
         memset(alpha, 0, n);
-        alpha[(q - 1) / 8] = 0x80 >> ((q - 1) % 8);
+        alpha[((q - 1) / 8) % n] = 0x80 >> ((q - 1) % 8);
         GF2_128_Multiply(ETW, alpha, T);
         XOR(C, T, n, X);
         dec(K1, X, Y);
@@ -175,7 +175,7 @@ void xts_dec(block_f_ptr enc, block_f_ptr dec, int n, const uint8_t *K1, const u
         memcpy(P + n, Z, d);
 
         memset(alpha, 0, n);
-        alpha[(q - 2) / 8] = 0x80 >> ((q - 2) % 8);
+        alpha[((q - 2) / 8) % n] = 0x80 >> ((q - 2) % 8);
         GF2_128_Multiply(ETW, alpha, T);
         memcpy(X, C + n, d);
         memcpy(X + d, Z + d, n - d);
