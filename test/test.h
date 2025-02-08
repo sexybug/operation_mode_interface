@@ -14,7 +14,7 @@ void dump_mem(const void *ptr, int len);
  * @brief 16进制字符串转数组
  *
  * @param str 16进制字符串
- * @param strLen 字节串长度(in Byte)
+ * @param len 字节串长度(in Byte)
  * @param out 输出
  */
 void HexString2Hex(const char *str, int len, uint8_t *out);

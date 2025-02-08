@@ -122,4 +122,3 @@ void print_u64(const char *title, const uint64_t *ptr, size_t len)
     }
     printf("};\n\n");
 }
-
