@@ -207,7 +207,7 @@
         {
             "type": "cppbuild",
             "label": "openssl",
-            "command": "C:/msys64/mingw64/bin/gcc.exe",
+            "command": "gcc",
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
@@ -222,9 +222,7 @@
                 "${workspaceFolder}/des_modes/*.c",
                 "${workspaceFolder}/hash/*.c",
                 "${workspaceFolder}/test/test.c",
-                
-                "-I",
-                "${workspaceFolder}\\openssl\\**.h",
+ 
                 "-L",
                 "C:\\msys64\\mingw64\\lib",
                 "-lssl",

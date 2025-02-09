@@ -27,8 +27,8 @@ int main(int argc, char **argv)
     HexString2Hex(K1_str, 16, K1);
     HexString2Hex(K2_str, 16, K2);
     HexString2Hex(TW_str, 16, TW);
-    HexString2Hex(P_str, 64, P);
-    HexString2Hex(C_str, 64, C);
+    HexString2Hex(P_str, 56, P);
+    HexString2Hex(C_str, 56, C);
 
     // 加密测试
     sm4_xts_enc(K1, K2,TW, P, 56, enc_out);
