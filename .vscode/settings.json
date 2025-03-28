@@ -25,7 +25,8 @@
         "err.h": "c",
         "aes_gcm.h": "c",
         "cbc_mac_update.h": "c",
-        "ctr_update.h": "c"
+        "ctr_update.h": "c",
+        "stdio.h": "c"
     },
     "Codegeex.RepoIndex": true
 }
