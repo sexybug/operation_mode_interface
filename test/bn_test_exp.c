@@ -12,6 +12,7 @@ void print_bn(const char *name, const BIGNUM *bn) {
 }
 
 int main() {
+<<<<<<< HEAD
     int len = 32;
 
     uint8_t a[256], b[256], c[256], d[256];
@@ -20,18 +21,33 @@ int main() {
 		a[i]=i;
 		b[i]=i;
 	}
+=======
+    int len = 256;
+
+    uint8_t a[256], b[256], c[256];
+    memset(a, 0x11, len);
+    memset(b, 0x33, len);
+>>>>>>> ddb493364e03f759091e2af5cb9cbef03096d978
     memset(c, 0xff, len);
 
     BN_CTX *ctx = BN_CTX_new();
     BIGNUM *bn_a = BN_bin2bn(a, len, NULL);
     BIGNUM *bn_b = BN_bin2bn(b, len, NULL);
     BIGNUM *bn_c = BN_bin2bn(c, len, NULL);
+<<<<<<< HEAD
     BIGNUM *bn_d = BN_new();
 
     // bn_d = bn_a ^ bn_b mod bn_c
     BN_mod_exp(bn_d, bn_a, bn_b, bn_c, ctx);
 
     print_bn("bn_d", bn_d);
+=======
+
+    // bn_c = bn_a ^ bn_b mod bn_c
+    BN_mod_exp(bn_c, bn_a, bn_b, bn_c, ctx);
+
+    print_bn("bn_c", bn_c);
+>>>>>>> ddb493364e03f759091e2af5cb9cbef03096d978
 
     return 0;
 }
