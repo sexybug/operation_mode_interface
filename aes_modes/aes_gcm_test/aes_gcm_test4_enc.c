@@ -10,14 +10,14 @@ int main()
     uint8_t K_str[] = "feffe9928665731c6d6a8f9467308308";
     uint8_t IV_str[] = "cafebabefacedbaddecaf888";
     uint8_t AAD_str[] = "feedfacedeadbeeffeedfacedeadbeefabaddad2";
-    uint8_t P_str[] = "d9313225f88406e5a55909c5aff5269a\
-86a7a9531534f7da2e4c303d8a318a72\
-1c3c0c95956809532fcf0e2449a6b525\
-b16aedf5aa0de657ba637b39";
-    uint8_t C_str[] = "42831ec2217774244b7221b784d0d49c\
-e3aa212f2c02a4e035c17e2329aca12e\
-21d514b25466931c7d8f6a5aac84aa05\
-1ba30b396a0aac973d58e091";
+    uint8_t P_str[] = "d9313225f88406e5a55909c5aff5269a"
+                      "86a7a9531534f7da2e4c303d8a318a72"
+                      "1c3c0c95956809532fcf0e2449a6b525"
+                      "b16aedf5aa0de657ba637b39";
+    uint8_t C_str[] = "42831ec2217774244b7221b784d0d49c"
+                      "e3aa212f2c02a4e035c17e2329aca12e"
+                      "21d514b25466931c7d8f6a5aac84aa05"
+                      "1ba30b396a0aac973d58e091";
     uint8_t T_str[] = "5bc94fbc3221a5db94fae95ae7121a47";
 
     int K_len = 16;

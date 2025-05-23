@@ -7,22 +7,22 @@
 
 int main()
 {
-    uint8_t K_str[] = "feffe9928665731c6d6a8f9467308308\
-feffe9928665731c6d6a8f9467308308";
-    uint8_t IV_str[] = "9313225df88406e555909c5aff5269aa\
-6a7a9538534f7da1e4c303d2a318a728\
-c3c0c95156809539fcf0e2429a6b5254\
-16aedbf5a0de6a57a637b39b";
-    uint8_t AAD_str[] = "feedfacedeadbeeffeedfacedeadbeef\
-abaddad2";
-    uint8_t P_str[] = "d9313225f88406e5a55909c5aff5269a\
-86a7a9531534f7da2e4c303d8a318a72\
-1c3c0c95956809532fcf0e2449a6b525\
-b16aedf5aa0de657ba637b39";
-    uint8_t C_str[] = "5a8def2f0c9e53f1f75d7853659e2a20\
-eeb2b22aafde6419a058ab4f6f746bf4\
-0fc0c3b780f244452da3ebf1c5d82cde\
-a2418997200ef82e44ae7e3f";
+    uint8_t K_str[] = "feffe9928665731c6d6a8f9467308308"
+                      "feffe9928665731c6d6a8f9467308308";
+    uint8_t IV_str[] = "9313225df88406e555909c5aff5269aa"
+                       "6a7a9538534f7da1e4c303d2a318a728"
+                       "c3c0c95156809539fcf0e2429a6b5254"
+                       "16aedbf5a0de6a57a637b39b";
+    uint8_t AAD_str[] = "feedfacedeadbeeffeedfacedeadbeef"
+                        "abaddad2";
+    uint8_t P_str[] = "d9313225f88406e5a55909c5aff5269a"
+                      "86a7a9531534f7da2e4c303d8a318a72"
+                      "1c3c0c95956809532fcf0e2449a6b525"
+                      "b16aedf5aa0de657ba637b39";
+    uint8_t C_str[] = "5a8def2f0c9e53f1f75d7853659e2a20"
+                      "eeb2b22aafde6419a058ab4f6f746bf4"
+                      "0fc0c3b780f244452da3ebf1c5d82cde"
+                      "a2418997200ef82e44ae7e3f";
     uint8_t T_str[] = "a44a8266ee1c8eb0c8b5d4cf5ae9f19a";
 
     int K_len = 32;
