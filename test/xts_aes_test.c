@@ -26,7 +26,7 @@ int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, uns
 
     if (!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
 
-    if (1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_xts(), NULL, key, iv)) handleErrors();
+    if (1 != EVP_EncryptInit_ex(ctx, EVP_aes_128_xts(), NULL, key, iv)) handleErrors();
 
     if (1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len)) handleErrors();
     ciphertext_len = len;
@@ -40,10 +40,11 @@ int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, uns
 }
 
 int main(void) {
-    char plain[]= "9d0ecc25831752449e68fadf8768164c67a0";
-    char key_str[] = "471b3c12966db5a1d7774bc3cd8bfca6a96e2e3937398d078b17ad707dddb7f2bf016e343b42bc43301cbce52507abfbaf069afafaa4ec49f2b30a3841453c6c";
-    char iv_str[] = "cab10c38afe0907088db6a509a6088eb";
-    unsigned char cipher[512]="f3316a799246f3fa3da0226f727f3d6f6de360a2fc4ad6937eea9c25c8ab8680";
+    
+    char key_str[] = "7BB5A73A2783C7CB8972A8FA70C7E31E5440503DBFC92C9996A8697F6110FBFC";
+    char iv_str[] = "FA19059AE6F1B4DDA39F59402F9F6BFF";
+    char plain[]= "4AFE3729C6A7B56B28C419E964281D38EC31D7CBF7E2476810251EA17995286F";
+    unsigned char cipher[512]="1c69ed3cf4f06b6212c3dc65516da8019ebd15c30ede38294af14feaa8ee27f8";
 
     int plain_len = strlen(plain)/2;
 
