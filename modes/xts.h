@@ -5,7 +5,8 @@
 #include <stdint.h>
 #include "../common.h"
 
-//XTS GB/T 17964-2021
+//XTS GB/T 17964-2021 
+//此接口已被废弃，请使用 xts_gb_enc 和 xts_gb_dec
 
 /**
  * @brief XTS 加密

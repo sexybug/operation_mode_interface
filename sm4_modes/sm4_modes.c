@@ -12,6 +12,9 @@
 #include "../modes/ofbnlf.h"
 #include "../modes/cbc_mac.h"
 #include "../modes/cmac.h"
+#include "../modes/xts_ieee.h"
+#include "../modes/xts_gb.h"
+
 
 /* block size in bytes */
 #define BLOCK_SIZE 16
@@ -245,6 +248,52 @@ cc_status_t sm4_cbc_mac(const uint8_t key[16], const uint8_t *in, int in_len, ui
 cc_status_t sm4_cmac(const uint8_t key[16], const uint8_t *in, int in_len, uint8_t mac[16])
 {
     cmac(sm4_enc, BLOCK_SIZE, key, in, in_len, mac);
+
+    return CC_SUCCESS;
+}
+
+cc_status_t sm4_xts_ieee_enc(const uint8_t K1[16], const uint8_t K2[16], const uint8_t TW[16], const uint8_t *P, int len, uint8_t *C)
+{
+    if (len < BLOCK_SIZE)
+    {
+        return CC_LENGTH_ERROR;
+    }
+
+    xts_ieee_enc(sm4_enc, K1, K2, TW, P, len, C);
+
+    return CC_SUCCESS;
+}
+cc_status_t sm4_xts_ieee_dec(const uint8_t K1[16], const uint8_t K2[16], const uint8_t TW[16], const uint8_t *C, int len, uint8_t *P)
+{
+    if (len < BLOCK_SIZE)
+    {
+        return CC_LENGTH_ERROR;
+    }
+
+    xts_ieee_dec(sm4_enc, sm4_dec, K1, K2, TW, C, len, P);
+
+    return CC_SUCCESS;
+}
+
+cc_status_t sm4_xts_gb_enc(const uint8_t K1[16], const uint8_t K2[16], const uint8_t TW[16], const uint8_t *P, int len, uint8_t *C)
+{
+    if (len < BLOCK_SIZE)
+    {
+        return CC_LENGTH_ERROR;
+    }
+
+    xts_gb_enc(sm4_enc, K1, K2, TW, P, len, C);
+
+    return CC_SUCCESS;
+}
+cc_status_t sm4_xts_gb_dec(const uint8_t K1[16], const uint8_t K2[16], const uint8_t TW[16], const uint8_t *C, int len, uint8_t *P)
+{
+    if (len < BLOCK_SIZE)
+    {
+        return CC_LENGTH_ERROR;
+    }
+
+    xts_gb_dec(sm4_enc, sm4_dec, K1, K2, TW, C, len, P);
 
     return CC_SUCCESS;
 }

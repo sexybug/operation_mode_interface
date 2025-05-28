@@ -6,26 +6,6 @@
 
 typedef uint64_t gf128_t[2];
 
-#define GETU64(p)             \
-    ((uint64_t)(p)[0] << 56 | \
-     (uint64_t)(p)[1] << 48 | \
-     (uint64_t)(p)[2] << 40 | \
-     (uint64_t)(p)[3] << 32 | \
-     (uint64_t)(p)[4] << 24 | \
-     (uint64_t)(p)[5] << 16 | \
-     (uint64_t)(p)[6] << 8 |  \
-     (uint64_t)(p)[7])
-
-#define PUTU64(p, V)                \
-    ((p)[0] = (uint8_t)((V) >> 56), \
-     (p)[1] = (uint8_t)((V) >> 48), \
-     (p)[2] = (uint8_t)((V) >> 40), \
-     (p)[3] = (uint8_t)((V) >> 32), \
-     (p)[4] = (uint8_t)((V) >> 24), \
-     (p)[5] = (uint8_t)((V) >> 16), \
-     (p)[6] = (uint8_t)((V) >> 8),  \
-     (p)[7] = (uint8_t)(V))
-
 static void gmssl_memxor(void *r, const void *a, const void *b, size_t len)
 {
     uint8_t *pr = r;
@@ -55,7 +35,7 @@ void gf128_mul_by_2(gf128_t r, const gf128_t a)
     }
 }
 
-int xts_ieee_enc(block_f_ptr enc, int n, const uint8_t *key1, const uint8_t *key2, const uint8_t tweak[16],
+int xts_ieee_enc(block_f_ptr enc, const uint8_t *key1, const uint8_t *key2, const uint8_t tweak[16],
                  const uint8_t *in, size_t inlen, uint8_t *out)
 {
     uint8_t T[16];
@@ -117,7 +97,7 @@ int xts_ieee_enc(block_f_ptr enc, int n, const uint8_t *key1, const uint8_t *key
     return 1;
 }
 
-int xts_ieee_dec(block_f_ptr enc, block_f_ptr dec, int n, const uint8_t *key1, const uint8_t *key2, const uint8_t tweak[16],
+int xts_ieee_dec(block_f_ptr enc, block_f_ptr dec, const uint8_t *key1, const uint8_t *key2, const uint8_t tweak[16],
                  const uint8_t *in, size_t inlen, uint8_t *out)
 {
     uint8_t T[16];

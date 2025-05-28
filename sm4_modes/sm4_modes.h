@@ -77,4 +77,10 @@ cc_status_t sm4_ofbnlf_dec(const uint8_t key[16], const uint8_t iv[16], const ui
 cc_status_t sm4_cbc_mac(const uint8_t key[16], const uint8_t *in, int in_len, uint8_t mac[16]);
 cc_status_t sm4_cmac(const uint8_t key[16], const uint8_t *in, int in_len, uint8_t mac[16]);
 
+cc_status_t sm4_xts_ieee_enc(const uint8_t K1[16], const uint8_t K2[16], const uint8_t TW[16], const uint8_t *P, int len, uint8_t *C);
+cc_status_t sm4_xts_ieee_dec(const uint8_t K1[16], const uint8_t K2[16], const uint8_t TW[16], const uint8_t *C, int len, uint8_t *P);
+
+cc_status_t sm4_xts_gb_enc(const uint8_t K1[16], const uint8_t K2[16], const uint8_t TW[16], const uint8_t *P, int len, uint8_t *C);
+cc_status_t sm4_xts_gb_dec(const uint8_t K1[16], const uint8_t K2[16], const uint8_t TW[16], const uint8_t *C, int len, uint8_t *P);
+
 #endif // _SM4_MODES_H_

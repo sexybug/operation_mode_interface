@@ -106,7 +106,7 @@ cc_status_t aes_cmac(const uint8_t *key, int key_len, const uint8_t *in, int in_
 
 
 /**
- * Encrypts data using the AES algorithm in XTS mode.
+ * Encrypts data using the AES algorithm in XTS IEEE mode.
  *
  * @param K1 the first key
  * @param K2 the second key
@@ -121,5 +121,20 @@ cc_status_t aes_cmac(const uint8_t *key, int key_len, const uint8_t *in, int in_
 cc_status_t aes_xts_ieee_enc(const uint8_t *K1, const uint8_t *K2, int key_len, const uint8_t TW[16], const uint8_t *P, int len, uint8_t *C);
 cc_status_t aes_xts_ieee_dec(const uint8_t *K1, const uint8_t *K2, int key_len, const uint8_t TW[16], const uint8_t *C, int len, uint8_t *P);
 
+/**
+ * Encrypts data using the AES algorithm in XTS GB/T mode.
+ *
+ * @param K1 the first key
+ * @param K2 the second key
+ * @param key_len the length of the key(K1 and K2) in bytes, can be {16, 24, 32}
+ * @param TW the 16-byte tweak value
+ * @param P the input data to be encrypted
+ * @param len the length of the input data in bytes
+ * @param C the output buffer where the encrypted data will be stored
+ *
+ * @return CC_SUCCESS if the encryption is successful, CC_LENGTH_ERROR if the input length is less than 16
+ */
+cc_status_t aes_xts_gb_enc(const uint8_t *K1, const uint8_t *K2, int key_len, const uint8_t TW[16], const uint8_t *P, int len, uint8_t *C);
+cc_status_t aes_xts_gb_dec(const uint8_t *K1, const uint8_t *K2, int key_len, const uint8_t TW[16], const uint8_t *C, int len, uint8_t *P);
 
 #endif // _AES_MODES_H_

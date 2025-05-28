@@ -5,7 +5,6 @@
 #include "../../test/test.h"
 #include "../../aes_modes/aes_modes.h"
 
-
 int main(int argc, char **argv)
 {
     // 定义密钥K1的十六进制字符串表示
@@ -22,11 +21,11 @@ int main(int argc, char **argv)
     // 定义密文C的十六进制字符串表示，初始化为全零
     uint8_t C_str[] = "B62412371F8D7CF1E27C05AF1A83D9B924F42A9C90D57BF0A0625CCFC77A158066CBDBD131535F7A";
 
-    int plain_len=40;
-    int key_len=16;
+    int plain_len = 40;
+    int key_len = 16;
 
     // 定义密钥K1、K2、Tweak值TW、明文P、密文C、加密输出enc_out和解密输出dec_out的缓冲区
-    uint8_t K1[16], K2[16],TW[16], P[64], C[64], enc_out[64], dec_out[64];
+    uint8_t K1[16], K2[16], TW[16], P[64], C[64], enc_out[64], dec_out[64];
     // 将十六进制字符串转换为字节序列
     HexString2Hex(K1_str, key_len, K1);
     HexString2Hex(K2_str, key_len, K2);
@@ -34,22 +33,30 @@ int main(int argc, char **argv)
     HexString2Hex(P_str, plain_len, P);
     HexString2Hex(C_str, plain_len, C);
 
-    
-
     // 加密测试，使用AES-XTS模式加密明文P
-    aes_xts_ieee_enc(K1, K2,key_len, TW, P, plain_len, enc_out);
+    aes_xts_ieee_enc(K1, K2, key_len, TW, P, plain_len, enc_out);
 
     // 打印加密输出
     printf("enc:\n");
     dump_mem(enc_out, plain_len);
-    
 
     // 解密测试，使用AES-XTS模式解密密文enc_out
-    aes_xts_ieee_dec(K1, K2,key_len,TW, enc_out, plain_len, dec_out);
+    aes_xts_ieee_dec(K1, K2, key_len, TW, enc_out, plain_len, dec_out);
 
     // 打印解密输出
     printf("dec:\n");
     dump_mem(dec_out, plain_len);
-    
+
+    int cmpENC = memcmp(enc_out, C, plain_len);
+    int cmpDEC = memcmp(dec_out, P, plain_len);
+    if (cmpENC == 0 && cmpDEC == 0)
+    {
+        printf("AES XTS test success!\n");
+    }
+    else
+    {
+        printf("AES XTS test failed!\n");
+    }
+
     return 0;
 }
