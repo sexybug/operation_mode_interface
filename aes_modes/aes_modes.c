@@ -12,6 +12,7 @@
 #include "../modes/ofbnlf.h"
 #include "../modes/cbc_mac.h"
 #include "../modes/cmac.h"
+#include "../modes/xts_ieee.h"
 
 /* block size in bytes */
 #define BLOCK_SIZE 16
@@ -510,6 +511,61 @@ cc_status_t aes_cmac(const uint8_t *key, int key_len, const uint8_t *in, int in_
     else
     {
         cmac(aes256_enc, BLOCK_SIZE, key, in, in_len, mac);
+    }
+
+    return CC_SUCCESS;
+}
+
+cc_status_t aes_xts_ieee_enc(const uint8_t *K1, const uint8_t *K2, int key_len, const uint8_t TW[16], const uint8_t *P, int len, uint8_t *C)
+{
+    if (!check_key_length(key_len))
+    {
+        return CC_LENGTH_ERROR;
+    }
+
+    if (len < BLOCK_SIZE)
+    {
+        return CC_LENGTH_ERROR;
+    }
+
+    if (key_len == 16)
+    {
+        xts_ieee_enc(aes128_enc, BLOCK_SIZE, K1, K2, TW, P, len, C);
+    }
+    else if (key_len == 24)
+    {
+        xts_ieee_enc(aes192_enc, BLOCK_SIZE, K1, K2, TW, P, len, C);
+    }
+    else
+    {
+        xts_ieee_enc(aes256_enc, BLOCK_SIZE, K1, K2, TW, P, len, C);
+    }
+
+    return CC_SUCCESS;
+}
+cc_status_t aes_xts_ieee_dec(const uint8_t *K1, const uint8_t *K2, int key_len, const uint8_t TW[16], const uint8_t *C, int len, uint8_t *P)
+{
+    if (!check_key_length(key_len))
+    {
+        return CC_LENGTH_ERROR;
+    }
+
+    if (len < BLOCK_SIZE)
+    {
+        return CC_LENGTH_ERROR;
+    }
+
+    if (key_len == 16)
+    {
+        xts_ieee_dec(aes128_enc, aes128_dec, BLOCK_SIZE, K1, K2, TW, C, len, P);
+    }
+    else if (key_len == 24)
+    {
+        xts_ieee_dec(aes192_enc, aes192_dec, BLOCK_SIZE, K1, K2, TW, C, len, P);
+    }
+    else
+    {
+        xts_ieee_dec(aes256_enc, aes256_dec, BLOCK_SIZE, K1, K2, TW, C, len, P);
     }
 
     return CC_SUCCESS;

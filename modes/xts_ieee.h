@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include "../common.h"
 
-//XTS GB/T 17964-2021
+// XTS IEEE Std 1619-2018
 
 /**
  * @brief XTS 加密
@@ -19,7 +19,8 @@
  * @param len 明文长度（in bytes），大于等于n的整数
  * @param C 密文输出
  */
-void xts_enc(block_f_ptr enc, int n, const uint8_t *K1, const uint8_t *K2, const uint8_t *TW, const uint8_t *P, int len, uint8_t *C);
+int xts_ieee_enc(block_f_ptr enc, int n, const uint8_t *key1, const uint8_t *key2, const uint8_t tweak[16],
+                 const uint8_t *in, size_t inlen, uint8_t *out);
 
 /**
  * @brief XTS 解密
@@ -34,6 +35,7 @@ void xts_enc(block_f_ptr enc, int n, const uint8_t *K1, const uint8_t *K2, const
  * @param len 密文长度（in bytes），大于等于n的整数
  * @param P 明文输出
  */
-void xts_dec(block_f_ptr enc, block_f_ptr dec, int n, const uint8_t *K1, const uint8_t *K2, const uint8_t *TW, const uint8_t *C, int len, uint8_t *P);
+int xts_ieee_dec(block_f_ptr enc, block_f_ptr dec, int n, const uint8_t *key1, const uint8_t *key2, const uint8_t tweak[16],
+                 const uint8_t *in, size_t inlen, uint8_t *out);
 
 #endif // _XTS_H_

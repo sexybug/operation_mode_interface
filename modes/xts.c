@@ -1,6 +1,7 @@
 #include "xts.h"
 #include <string.h>
-#include "../sm4/sm4.h"
+
+//XTS GB/T 17964-2021
 
 /**
  * @brief GF(2^128)上的本原多项式
