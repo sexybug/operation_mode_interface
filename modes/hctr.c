@@ -160,12 +160,13 @@ void hctr_enc(block_f_ptr enc, int n, const uint8_t *K1, const uint8_t *K2, cons
         XOR(T, Z2, n, T);
         ctr_enc(enc, n, K1, T, P + i * n, n, C + i * n);
     }
-    if (len % n != 0)
+	int rest = len % n;
+    if (rest != 0)
     {
         int_to_uint8(whole_block, n, T);
         XOR(T, Z1, n, T);
         XOR(T, Z2, n, T);
-        ctr_enc(enc, n, K1, T, P + whole_block * n, n, C + whole_block * n);
+        ctr_enc(enc, n, K1, T, P + whole_block * n, rest, C + whole_block * n);
     }
     memcpy(M, C + n, len - n);
     memcpy(M + len - n, TW, n);
@@ -192,12 +193,13 @@ void hctr_dec(block_f_ptr enc, block_f_ptr dec, int n, const uint8_t *K1, const 
         XOR(T, Z2, n, T);
         ctr_dec(enc, n, K1, T, C + i * n, n, P + i * n);
     }
-    if (len % n != 0)
+    int rest = len % n;
+    if (rest != 0)
     {
         int_to_uint8(whole_block, n, T);
         XOR(T, Z1, n, T);
         XOR(T, Z2, n, T);
-        ctr_dec(enc, n, K1, T, C + whole_block * n, n, P + whole_block * n);
+        ctr_dec(enc, n, K1, T, C + whole_block * n, rest, P + whole_block * n);
     }
     memcpy(M, P + n, len - n);
     memcpy(M + len - n, TW, n);
