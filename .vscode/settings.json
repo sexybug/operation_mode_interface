@@ -27,7 +27,12 @@
         "cbc_mac_update.h": "c",
         "ctr_update.h": "c",
         "stdio.h": "c",
-        "xts_ieee.h": "c"
+        "xts_ieee.h": "c",
+        "ec.h": "c",
+        "bn.h": "c",
+        "evp.h": "c",
+        "sm2.h": "c",
+        "pem.h": "c"
     },
     "Codegeex.RepoIndex": true
 }

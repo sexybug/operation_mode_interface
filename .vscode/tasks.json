@@ -224,7 +224,7 @@
                 "${workspaceFolder}/test/test.c",
  
                 "-L",
-                "C:\\msys64\\mingw64\\lib",
+                "C:\\msys64\\ucrt64\\lib",
                 "-lssl",
                 "-lcrypto",
                 "-o",
