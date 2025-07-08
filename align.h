@@ -4,7 +4,9 @@
 
 #include <stdint.h>
 
+#ifndef __align4
 #define __align4 __attribute__((aligned(4)))
+#endif
 
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 static inline uint32_t GET32(const uint8_t *p)
