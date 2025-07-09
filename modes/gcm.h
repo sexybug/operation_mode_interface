@@ -27,7 +27,7 @@ typedef struct
 
 typedef struct
 {
-    uint8_t K[32];
+    uint8_t K[48];
     uint8_t CB[16];
     uint8_t buf[16];
     int total_len;

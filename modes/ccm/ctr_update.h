@@ -9,7 +9,7 @@ typedef void (*cipher_f)(const uint8_t *key, const uint8_t *in, uint8_t *out);
 
 typedef struct
 {
-    uint8_t key[32];
+    uint8_t key[48];
     uint8_t ctr[16];
     uint8_t in_buf[16];
     int key_len;     // 密钥长度
