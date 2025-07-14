@@ -19,20 +19,20 @@ typedef void (*cipher_f)(const uint8_t *key, const uint8_t *in, uint8_t *out);
 
 typedef struct
 {
-    uint8_t H[16];
-    uint8_t buf[16];
-    uint8_t Y[16];
-    int total_len;
+    uint8_t H[16];      // hash subkey
+    uint8_t buf[16];    // buffer for partial blocks, if always 16 bytes, then no need to buffer
+    uint8_t Y[16];      // middle value, Yi
+    int total_len;      // total length of input
 } __align4 GHASH_CTX;
 
 typedef struct
 {
-    uint8_t K[48];
-    uint8_t CB[16];
-    uint8_t buf[16];
-    int total_len;
-    cipher_f cipher;
-    int K_len;
+    uint8_t K[48];      // key. 16 bytes for SM4, 16/24/32 bytes for AES, 16/32/48 bytes for SM1
+    uint8_t CB[16];     // counter block
+    uint8_t buf[16];    // buffer for partial blocks, if always 16 bytes, then no need to buffer
+    int total_len;      // total length of input
+    cipher_f cipher;    // cipher function, e.g., sm4_enc, aes_enc, sm1_enc
+    int K_len;          // key length. 16 bytes for SM4, 16/24/32 bytes for AES, 16/32/48 bytes for SM1
 } __align4 GCTR_CTX;
 
 typedef enum
@@ -42,12 +42,12 @@ typedef enum
 } GCM_ENC_DEC_MODE;
 typedef struct
 {
-    uint8_t J0[16];
-    GHASH_CTX ghash;
-    GCTR_CTX gctr;
-    GCM_ENC_DEC_MODE enc_dec;
-    int tag_len;
-    int AAD_len;
+    uint8_t J0[16];     //GCM J0
+    GHASH_CTX ghash;    //GCM GHASH context
+    GCTR_CTX gctr;      //GCM GCTR context
+    GCM_ENC_DEC_MODE enc_dec;   // GCM mode, encrypt or decrypt
+    int tag_len;        // The byte length of the tag, must in [4,16]
+    int AAD_len;        // The total byte length of the AAD, must in [0,2^64-1]
 } __align4 GCM_CTX;
 
 /**
