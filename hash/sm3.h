@@ -14,13 +14,14 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "../align.h"
 
 typedef struct
 {
     uint32_t digest[8];
     int msg_total_len;
     uint8_t buf[64];
-} sm3_ctx_t;
+} __align4 sm3_ctx_t;
 
 /**
  * @brief 初始化上下文

@@ -360,7 +360,7 @@ static void gcm_retrieve_tag(GCM_CTX *ctx, uint8_t *tag, int tag_len)
     T1_len += tmp_len;
     gctr_final(&gctr, T1 + tmp_len, &tmp_len);
     T1_len += tmp_len;
-    memcpy(tag, T1, ctx->tag_len);
+    memcpy(tag, T1, tag_len);
 }
 
 void gcm_final(GCM_CTX *ctx, uint8_t *out, int *out_len, uint8_t *Tag)
