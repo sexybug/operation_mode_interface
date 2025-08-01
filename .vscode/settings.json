@@ -33,7 +33,9 @@
         "evp.h": "c",
         "sm2.h": "c",
         "pem.h": "c",
-        "sm4_ccm.h": "c"
+        "sm4_ccm.h": "c",
+        "ofb128_update.h": "c",
+        "stdint.h": "c"
     },
     "Codegeex.RepoIndex": true
 }

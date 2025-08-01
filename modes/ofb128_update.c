@@ -1,5 +1,5 @@
 
-#include "ctr_update.h"
+#include "ofb128_update.h"
 #include <string.h>
 
 /**
@@ -18,32 +18,18 @@ static void XOR(uint8_t *Z, const uint8_t *X, const uint8_t *Y, int len)
         Z[i] = X[i] ^ Y[i];
     }
 }
-static void ctr_increase(uint8_t *ctr, int ctr_len)
-{
-    int i;
-    for (i = ctr_len - 1; i >= 0; i--)
-    {
-        ctr[i]++;
-        if (ctr[i] != 0)
-        {
-            break;
-        }
-    }
-}
 
-void ctr_init(CTR_CTX *ctx, cipher_f cipher, const uint8_t *key, int key_len, const uint8_t *ctr, int block_len)
+void ofb128_init(OFB128_CTX *ctx, cipher_f cipher, const uint8_t *key, int key_len, const uint8_t *ctr, int block_len)
 {
     ctx->cipher = cipher;
     memcpy(ctx->key, key, key_len);
-    memcpy(ctx->ctr, ctr, block_len);
+    memcpy(ctx->iv, ctr, block_len);
     ctx->block_len = block_len;
     ctx->total_len = 0;
 }
 
-void ctr_update(CTR_CTX *ctx, const uint8_t *in, int in_len, uint8_t *out, int *out_len)
+void ofb128_update(OFB128_CTX *ctx, const uint8_t *in, int in_len, uint8_t *out, int *out_len)
 {
-    __align4 uint8_t T[16];
-
     *out_len = 0;
     if (in_len <= 0)
     {
@@ -64,9 +50,8 @@ void ctr_update(CTR_CTX *ctx, const uint8_t *in, int in_len, uint8_t *out, int *
             int copy_len = block_len - buf_len;
             memcpy(ctx->in_buf + buf_len, in, copy_len);
 
-            ctx->cipher(ctx->key, ctx->ctr, T);
-            XOR(out, T, ctx->in_buf, block_len);
-            ctr_increase(ctx->ctr, block_len);
+            ctx->cipher(ctx->key, ctx->iv, ctx->iv);
+            XOR(out, ctx->iv, ctx->in_buf, block_len);
 
             in += copy_len;
             in_len -= copy_len;
@@ -76,9 +61,8 @@ void ctr_update(CTR_CTX *ctx, const uint8_t *in, int in_len, uint8_t *out, int *
     }
     while (in_len >= block_len)
     {
-        ctx->cipher(ctx->key, ctx->ctr, T);
-        XOR(out, T, in, block_len);
-        ctr_increase(ctx->ctr, block_len);
+        ctx->cipher(ctx->key, ctx->iv, ctx->iv);
+        XOR(out, ctx->iv, in, block_len);
 
         in += block_len;
         in_len -= block_len;
@@ -91,18 +75,16 @@ void ctr_update(CTR_CTX *ctx, const uint8_t *in, int in_len, uint8_t *out, int *
     }
 }
 
-void ctr_final(CTR_CTX *ctx, uint8_t *out, int *out_len)
+void ofb128_final(OFB128_CTX *ctx, uint8_t *out, int *out_len)
 {
-    __align4 uint8_t T[16];
-
     *out_len = 0;
     int block_len = ctx->block_len;
     int rest_len = ctx->total_len % block_len;
     if (rest_len > 0)
     {
-        ctx->cipher(ctx->key, ctx->ctr, T);
+        __align4 uint8_t T[16];
+        ctx->cipher(ctx->key, ctx->iv, T);
         XOR(out, T, ctx->in_buf, rest_len);
-        ctr_increase(ctx->ctr, block_len);
         *out_len += rest_len;
     }
 }

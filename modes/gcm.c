@@ -170,6 +170,8 @@ static void gctr_init(GCTR_CTX *ctx, const uint8_t *K, int K_len, const uint8_t 
 
 static void gctr_update(GCTR_CTX *ctx, const uint8_t *X, int Xlen, uint8_t *Y, int *Ylen)
 {
+    __align4 uint8_t T[16];
+
     *Ylen = 0;
     if (Xlen <= 0)
     {
@@ -192,8 +194,8 @@ static void gctr_update(GCTR_CTX *ctx, const uint8_t *X, int Xlen, uint8_t *Y, i
             int copy_len = 16 - buf_len;
             memcpy(ctx->buf + buf_len, X, copy_len);
 
-            cipher(ctx->K, ctx->CB, Y);
-            XOR(Y, ctx->buf, Y, 16);
+            cipher(ctx->K, ctx->CB, T);
+            XOR(Y, ctx->buf, T, 16);
             X += copy_len;
             Xlen -= copy_len;
             Y += 16;
@@ -204,8 +206,8 @@ static void gctr_update(GCTR_CTX *ctx, const uint8_t *X, int Xlen, uint8_t *Y, i
 
     while (Xlen >= 16)
     {
-        cipher(ctx->K, ctx->CB, Y);
-        XOR(Y, X, Y, 16);
+        cipher(ctx->K, ctx->CB, T);
+        XOR(Y, X, T, 16);
         X += 16;
         Xlen -= 16;
         Y += 16;
@@ -220,11 +222,12 @@ static void gctr_update(GCTR_CTX *ctx, const uint8_t *X, int Xlen, uint8_t *Y, i
 
 static void gctr_final(GCTR_CTX *ctx, uint8_t *Y, int *Ylen)
 {
+    __align4 uint8_t T[16];
+
     *Ylen = 0;
     int buf_len = ctx->total_len % 16;
     if (buf_len > 0)
     {
-        __align4 uint8_t T[16];
         ctx->cipher(ctx->K, ctx->CB, T);
         XOR(Y, ctx->buf, T, buf_len);
         *Ylen += buf_len;
