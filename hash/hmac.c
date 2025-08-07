@@ -12,7 +12,7 @@ void hmac_init(HMAC_CTX *ctx, void *hash_ctx, const uint8_t *key, size_t key_len
         return;
 
     size_t i;
-    uint8_t key_ipad[128];
+    __align4 uint8_t key_ipad[128];
 
     ctx->hash_init = hash_init;
     ctx->hash_update = hash_update;
@@ -50,7 +50,7 @@ void hmac_update(HMAC_CTX *ctx, void *hash_ctx, const uint8_t *data, size_t data
 
 void hmac_final(HMAC_CTX *ctx, void *hash_ctx, uint8_t *mac)
 {
-    uint8_t buf[192];
+    __align4 uint8_t buf[192];
     size_t i;
 
     for (i = 0; i < ctx->hash_block_size; i++)
