@@ -22,8 +22,14 @@ void kdf_sm3_init(KDF_CTX *kdf_ctx)
     kdf_init(kdf_ctx, _sm3_init, _sm3_update, _sm3_final, 32);
 }
 
+void kdf_sm3_derive_block(KDF_CTX *kdf_ctx, const uint8_t *Z, size_t Z_len, const uint8_t *shared_info, size_t shared_info_len, uint8_t *Ki)
+{
+    sm3_ctx_t hash_ctx;
+    kdf_derive_block(kdf_ctx, &hash_ctx, Z, Z_len, shared_info, shared_info_len, Ki);
+}
+
 void kdf_sm3_derive(KDF_CTX *kdf_ctx, const uint8_t *Z, size_t Z_len, const uint8_t *shared_info, size_t shared_info_len, uint8_t *key, size_t key_len)
 {
-    sm3_ctx_t sm3_ctx;
-    kdf_derive(kdf_ctx, &sm3_ctx, Z, Z_len, shared_info, shared_info_len, key, key_len);
+    sm3_ctx_t hash_ctx;
+    kdf_derive(kdf_ctx, &hash_ctx, Z, Z_len, shared_info, shared_info_len, key, key_len);
 }
