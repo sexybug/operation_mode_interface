@@ -2,6 +2,7 @@
 #include <openssl/evp.h>
 #include <openssl/bio.h>
 #include <openssl/err.h>
+#include "../../test/test.h"
 
 int main(void)
 {
@@ -53,7 +54,8 @@ int main(void)
         goto err;
 
     /* Print out the digest result */
-    BIO_dump_fp(stdout, outdigest, len);
+    // BIO_dump_fp(stdout, outdigest, len);
+    print_u8("digest",outdigest, len);
 
     ret = 0;
 
