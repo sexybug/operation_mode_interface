@@ -1,12 +1,113 @@
 
 #include "gcm.h"
 #include <string.h>
+#include <stdlib.h>
 
-/**
- * @brief GF(2^128)上的本原多项式
- *
- */
-static const uint8_t R[16] = {0xE1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+#define BSWAP8(x) _byteswap_uint64((uint64_t)(x))
+
+#define PACK(s) ((size_t)(s) << (sizeof(size_t) * 8 - 16))
+#define REDUCE1BIT(V)                                                       \
+    do                                                                      \
+    {                                                                       \
+        if (sizeof(size_t) == 8)                                            \
+        {                                                                   \
+            uint64_t T = (uint64_t)(0xe100000000000000) & (0 - (V.lo & 1)); \
+            V.lo = (V.hi << 63) | (V.lo >> 1);                              \
+            V.hi = (V.hi >> 1) ^ T;                                         \
+        }                                                                   \
+        else                                                                \
+        {                                                                   \
+            uint32_t T = 0xe1000000U & (0 - (uint32_t)(V.lo & 1));          \
+            V.lo = (V.hi << 63) | (V.lo >> 1);                              \
+            V.hi = (V.hi >> 1) ^ ((uint64_t)T << 32);                       \
+        }                                                                   \
+    } while (0)
+
+static void gcm_init_4bit(u128 Htable[16], const uint64_t H[2])
+{
+    u128 V;
+
+    Htable[0].hi = 0;
+    Htable[0].lo = 0;
+    V.hi = H[0];
+    V.lo = H[1];
+
+    Htable[8] = V;
+    REDUCE1BIT(V);
+    Htable[4] = V;
+    REDUCE1BIT(V);
+    Htable[2] = V;
+    REDUCE1BIT(V);
+    Htable[1] = V;
+    Htable[3].hi = V.hi ^ Htable[2].hi, Htable[3].lo = V.lo ^ Htable[2].lo;
+    V = Htable[4];
+    Htable[5].hi = V.hi ^ Htable[1].hi, Htable[5].lo = V.lo ^ Htable[1].lo;
+    Htable[6].hi = V.hi ^ Htable[2].hi, Htable[6].lo = V.lo ^ Htable[2].lo;
+    Htable[7].hi = V.hi ^ Htable[3].hi, Htable[7].lo = V.lo ^ Htable[3].lo;
+    V = Htable[8];
+    Htable[9].hi = V.hi ^ Htable[1].hi, Htable[9].lo = V.lo ^ Htable[1].lo;
+    Htable[10].hi = V.hi ^ Htable[2].hi, Htable[10].lo = V.lo ^ Htable[2].lo;
+    Htable[11].hi = V.hi ^ Htable[3].hi, Htable[11].lo = V.lo ^ Htable[3].lo;
+    Htable[12].hi = V.hi ^ Htable[4].hi, Htable[12].lo = V.lo ^ Htable[4].lo;
+    Htable[13].hi = V.hi ^ Htable[5].hi, Htable[13].lo = V.lo ^ Htable[5].lo;
+    Htable[14].hi = V.hi ^ Htable[6].hi, Htable[14].lo = V.lo ^ Htable[6].lo;
+    Htable[15].hi = V.hi ^ Htable[7].hi, Htable[15].lo = V.lo ^ Htable[7].lo;
+}
+
+static const size_t rem_4bit[16] = {
+    PACK(0x0000), PACK(0x1C20), PACK(0x3840), PACK(0x2460),
+    PACK(0x7080), PACK(0x6CA0), PACK(0x48C0), PACK(0x54E0),
+    PACK(0xE100), PACK(0xFD20), PACK(0xD940), PACK(0xC560),
+    PACK(0x9180), PACK(0x8DA0), PACK(0xA9C0), PACK(0xB5E0)};
+
+static void gcm_gmult_4bit(uint64_t Xi[2], const u128 Htable[16])
+{
+    u128 Z;
+    int cnt = 15;
+    size_t rem, nlo, nhi;
+
+    nlo = ((const uint8_t *)Xi)[15];
+    nhi = nlo >> 4;
+    nlo &= 0xf;
+
+    Z.hi = Htable[nlo].hi;
+    Z.lo = Htable[nlo].lo;
+
+    while (1)
+    {
+        rem = (size_t)Z.lo & 0xf;
+        Z.lo = (Z.hi << 60) | (Z.lo >> 4);
+        Z.hi = (Z.hi >> 4);
+        if (sizeof(size_t) == 8)
+            Z.hi ^= rem_4bit[rem];
+        else
+            Z.hi ^= (uint64_t)rem_4bit[rem] << 32;
+
+        Z.hi ^= Htable[nhi].hi;
+        Z.lo ^= Htable[nhi].lo;
+
+        if (--cnt < 0)
+            break;
+
+        nlo = ((const uint8_t *)Xi)[cnt];
+        nhi = nlo >> 4;
+        nlo &= 0xf;
+
+        rem = (size_t)Z.lo & 0xf;
+        Z.lo = (Z.hi << 60) | (Z.lo >> 4);
+        Z.hi = (Z.hi >> 4);
+        if (sizeof(size_t) == 8)
+            Z.hi ^= rem_4bit[rem];
+        else
+            Z.hi ^= (uint64_t)rem_4bit[rem] << 32;
+
+        Z.hi ^= Htable[nlo].hi;
+        Z.lo ^= Htable[nlo].lo;
+    }
+
+    Xi[0] = BSWAP8(Z.hi);
+    Xi[1] = BSWAP8(Z.lo);
+}
 
 /**
  * @brief 异或 Z = X ^ Y
@@ -16,7 +117,7 @@ static const uint8_t R[16] = {0xE1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
  * @param Y
  * @param len (in bytes)
  */
-static void XOR(uint8_t *Z, const uint8_t *X, const uint8_t *Y, int len)
+static inline void XOR(uint8_t *Z, const uint8_t *X, const uint8_t *Y, int len)
 {
     int i;
     for (i = 0; i < len; i++)
@@ -25,72 +126,38 @@ static void XOR(uint8_t *Z, const uint8_t *X, const uint8_t *Y, int len)
     }
 }
 
-/**
- * @brief 获取比特串S左边起第i个比特，以0为起始位置
- * example: bit(0101010101010101,9)=1
- *
- * @param S
- * @param i
- * @return uint8_t 0x00 or 0x01
- */
-static inline uint8_t bit(const uint8_t *S, int i)
+static inline void XOR128(uint32_t Z[4], const uint32_t X[4], const uint32_t Y[4])
 {
-    return (S[i / 8] & (0x80 >> (i % 8))) >> ((8 - (i + 1) % 8) % 8);
+    Z[0] = X[0] ^ Y[0];
+    Z[1] = X[1] ^ Y[1];
+    Z[2] = X[2] ^ Y[2];
+    Z[3] = X[3] ^ Y[3];
 }
 
-/**
- * @brief 字节串X整体右移1比特，左侧补0
- *
- * @param X
- * @param len X length (in bytes)
- */
-static void right_move1(uint8_t *X, int len)
+static inline void memset_128(uint32_t *X, uint32_t v)
 {
-    int i;
-    for (i = len - 1; i >= 1; i--)
-    {
-        X[i] = (X[i - 1] << 7) | (X[i] >> 1);
-    }
-    X[0] = X[0] >> 1;
+    X[0] = v;
+    X[1] = v;
+    X[2] = v;
+    X[3] = v;
 }
-/**
- * @brief GF(2^128)有限域乘法，Z = X (*) Y, 以G为本原多项式
- * X和Z不能为同一数组，gf128_mul(Z,Z,Y) will cause error.
- *
- * @param Z
- * @param X
- * @param Y
- */
-static void gf128_mul(uint8_t *Z, const uint8_t *X, const uint8_t *Y)
+static inline void memcpy_u32(uint32_t *dst, const uint32_t *src, int len)
 {
     int i;
-    uint8_t V[16];
-
-    memset(Z, 0, 16);
-    memcpy(V, Y, 16);
-
-    for (i = 0; i <= 127; i++)
+    for (i = 0; i < len; i++)
     {
-        if (bit(X, i) == 0x01)
-        {
-            XOR(Z, Z, V, 16);
-        }
-        if (bit(V, 127) == 0x00)
-        {
-            right_move1(V, 16);
-        }
-        else
-        {
-            right_move1(V, 16);
-            XOR(V, V, R, 16);
-        }
+        dst[i] = src[i];
     }
 }
 
 static void ghash_init(GHASH_CTX *ctx, const uint8_t *H)
 {
-    memcpy(ctx->H, H, 16);
-    memset(ctx->Y, 0, 16);
+    uint64_t *H_u64 = (uint64_t *)ctx->Y;
+
+    H_u64[0] = BSWAP8(*((uint64_t *)H));
+    H_u64[1] = BSWAP8(*((uint64_t *)(H + 8)));
+    gcm_init_4bit(ctx->Htable, H_u64);
+    memset_128(ctx->Y, 0);
     ctx->total_len = 0;
 }
 static void ghash_update(GHASH_CTX *ctx, const uint8_t *X, int Xlen)
@@ -99,7 +166,6 @@ static void ghash_update(GHASH_CTX *ctx, const uint8_t *X, int Xlen)
     {
         return;
     }
-    uint8_t T[16];
     int buf_len = ctx->total_len % 16;
     ctx->total_len += Xlen;
 
@@ -114,8 +180,8 @@ static void ghash_update(GHASH_CTX *ctx, const uint8_t *X, int Xlen)
         {
             int copy_len = 16 - buf_len;
             memcpy(ctx->buf + buf_len, X, copy_len);
-            XOR(T, ctx->Y, ctx->buf, 16);
-            gf128_mul(ctx->Y, T, ctx->H);
+            XOR128(ctx->Y, ctx->Y, ctx->buf);
+            gcm_gmult_4bit(ctx->Y, ctx->Htable);
             X += copy_len;
             Xlen -= copy_len;
         }
@@ -123,8 +189,8 @@ static void ghash_update(GHASH_CTX *ctx, const uint8_t *X, int Xlen)
 
     while (Xlen >= 16)
     {
-        XOR(T, ctx->Y, X, 16);
-        gf128_mul(ctx->Y, T, ctx->H);
+        XOR128(ctx->Y, ctx->Y, X);
+        gcm_gmult_4bit(ctx->Y, ctx->Htable);
         X += 16;
         Xlen -= 16;
     }
@@ -133,13 +199,13 @@ static void ghash_update(GHASH_CTX *ctx, const uint8_t *X, int Xlen)
         memcpy(ctx->buf, X, Xlen);
     }
 }
-static int ghash_final(GHASH_CTX *ctx, uint8_t *Y)
+static int ghash_final(const GHASH_CTX *ctx, uint8_t *Y)
 {
     if (ctx->total_len % 16 != 0)
     {
         return -1;
     }
-    memcpy(Y, ctx->Y, 16);
+    memcpy_u32(Y, ctx->Y, 16 / 4);
     return 0;
 }
 
@@ -149,7 +215,7 @@ static int ghash_final(GHASH_CTX *ctx, uint8_t *Y)
  * @param CTR 计数器值
  * @param len CTR长度(in bytes)
  */
-static void inc32(uint8_t *CTR)
+static void inc32(uint8_t CTR[16])
 {
     int i = 15;
     CTR[i]++;
@@ -163,7 +229,7 @@ static void gctr_init(GCTR_CTX *ctx, const uint8_t *K, int K_len, const uint8_t 
 {
     ctx->K_len = K_len;
     memcpy(ctx->K, K, K_len);
-    memcpy(ctx->CB, ICB, 16);
+    memcpy_u32(ctx->CB, ICB, 16 / 4);
     ctx->total_len = 0;
     ctx->cipher = cipher;
 }
@@ -195,7 +261,7 @@ static void gctr_update(GCTR_CTX *ctx, const uint8_t *X, int Xlen, uint8_t *Y, i
             memcpy(ctx->buf + buf_len, X, copy_len);
 
             cipher(ctx->K, ctx->CB, T);
-            XOR(Y, ctx->buf, T, 16);
+            XOR128(Y, ctx->buf, T);
             X += copy_len;
             Xlen -= copy_len;
             Y += 16;
@@ -207,7 +273,7 @@ static void gctr_update(GCTR_CTX *ctx, const uint8_t *X, int Xlen, uint8_t *Y, i
     while (Xlen >= 16)
     {
         cipher(ctx->K, ctx->CB, T);
-        XOR(Y, X, T, 16);
+        XOR128(Y, X, T);
         X += 16;
         Xlen -= 16;
         Y += 16;
@@ -240,7 +306,7 @@ static void gctr_final(GCTR_CTX *ctx, uint8_t *Y, int *Ylen)
  * @param X uint64数据
  * @param Y uint8数组
  */
-static void u64_2_u8(uint64_t X, uint8_t *Y)
+static inline void u64_2_u8(uint64_t X, uint8_t *Y)
 {
     Y[0] = (uint8_t)(X >> 56);
     Y[1] = (uint8_t)(X >> 48);
@@ -263,14 +329,13 @@ void gcm_init(GCM_CTX *ctx, cipher_f cipher, GCM_ENC_DEC_MODE enc_dec,
     ctx->tag_len = TAG_len;
     ctx->AAD_len = 0;
 
-    __align4 uint8_t H[16];
-    memset(H, 0, 16);
+    __align4 uint8_t H[16] = {0};
     cipher(K, H, H);
 
-    uint8_t J0[16];
+    __align4 uint8_t J0[16];
     if (IV_len == 12)
     {
-        memcpy(J0, IV, 12);
+        memcpy_u32(J0, IV, 12 / 4);
         J0[12] = 0;
         J0[13] = 0;
         J0[14] = 0;
@@ -279,23 +344,21 @@ void gcm_init(GCM_CTX *ctx, cipher_f cipher, GCM_ENC_DEC_MODE enc_dec,
     else
     {
         GHASH_CTX ghash_ctx;
-        uint8_t pad[16];
+        __align4 uint8_t pad[16] = {0};
         int s = IV_len % 16;
 
         ghash_init(&ghash_ctx, H);
         ghash_update(&ghash_ctx, IV, IV_len);
         if (s != 0)
         {
-            memset(pad, 0, 16 - s);
             ghash_update(&ghash_ctx, pad, 16 - s);
         }
-        memset(pad, 0, 8);
-        uint64_t bit_len = IV_len * 8;
+        uint64_t bit_len = (uint64_t)IV_len * 8;
         u64_2_u8(bit_len, pad + 8);
         ghash_update(&ghash_ctx, pad, 16);
         ghash_final(&ghash_ctx, J0);
     }
-    memcpy(ctx->J0, J0, 16);
+    memcpy_u32(ctx->J0, J0, 16 / 4);
     inc32(J0);
     gctr_init(&(ctx->gctr), K, K_len, J0, cipher);
     ghash_init(&(ctx->ghash), H);
@@ -315,8 +378,7 @@ void gcm_updateAAD(GCM_CTX *ctx, const uint8_t *AAD, int AAD_len, bool is_last)
         int rest_len = A_len % 16;
         if (rest_len > 0)
         {
-            uint8_t pad[16];
-            memset(pad, 0, 16 - rest_len);
+            uint8_t pad[16] = {0};
             ghash_update(&(ctx->ghash), pad, 16 - rest_len);
         }
     }
@@ -341,10 +403,9 @@ static void gcm_retrieve_tag(GCM_CTX *ctx, uint8_t *tag, int tag_len)
     int AAD_len = ctx->AAD_len;
     int in_len = ctx->gctr.total_len;
     int rest_len = in_len % 16;
-    uint8_t pad[16];
+    uint8_t pad[16] = {0};
     if (rest_len > 0)
     {
-        memset(pad, 0, 16 - rest_len);
         ghash_update(&(ctx->ghash), pad, 16 - rest_len);
     }
     uint64_t A_bit_len = (uint64_t)AAD_len * 8;
