@@ -3,7 +3,17 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define BSWAP8(x) _byteswap_uint64((uint64_t)(x))
+static inline uint64_t cc_swap_u64(uint64_t x)
+{
+    return (x & 0x00000000000000FFULL) << 56 |
+           (x & 0x000000000000FF00ULL) << 40 |
+           (x & 0x0000000000FF0000ULL) << 24 |
+           (x & 0x00000000FF000000ULL) << 8 |
+           (x & 0x000000FF00000000ULL) >> 8 |
+           (x & 0x0000FF0000000000ULL) >> 24 |
+           (x & 0x00FF000000000000ULL) >> 40 |
+           (x & 0xFF00000000000000ULL) >> 56;
+}
 
 #define PACK(s) ((size_t)(s) << (sizeof(size_t) * 8 - 16))
 #define REDUCE1BIT(V)                                                       \
@@ -105,8 +115,8 @@ static void gcm_gmult_4bit(uint64_t Xi[2], const u128 Htable[16])
         Z.lo ^= Htable[nlo].lo;
     }
 
-    Xi[0] = BSWAP8(Z.hi);
-    Xi[1] = BSWAP8(Z.lo);
+    Xi[0] = cc_swap_u64(Z.hi);
+    Xi[1] = cc_swap_u64(Z.lo);
 }
 
 /**
@@ -154,10 +164,10 @@ static void ghash_init(GHASH_CTX *ctx, const uint8_t *H)
 {
     uint64_t *H_u64 = (uint64_t *)ctx->Y;
 
-    H_u64[0] = BSWAP8(*((uint64_t *)H));
-    H_u64[1] = BSWAP8(*((uint64_t *)(H + 8)));
+    H_u64[0] = cc_swap_u64(*((uint64_t *)H));
+    H_u64[1] = cc_swap_u64(*((uint64_t *)(H + 8)));
     gcm_init_4bit(ctx->Htable, H_u64);
-    memset_128(ctx->Y, 0);
+    memset_128((uint32_t *)ctx->Y, 0);
     ctx->total_len = 0;
 }
 static void ghash_update(GHASH_CTX *ctx, const uint8_t *X, int Xlen)
@@ -180,8 +190,8 @@ static void ghash_update(GHASH_CTX *ctx, const uint8_t *X, int Xlen)
         {
             int copy_len = 16 - buf_len;
             memcpy(ctx->buf + buf_len, X, copy_len);
-            XOR128(ctx->Y, ctx->Y, ctx->buf);
-            gcm_gmult_4bit(ctx->Y, ctx->Htable);
+            XOR128((uint32_t *)ctx->Y, (uint32_t *)ctx->Y, (uint32_t *)ctx->buf);
+            gcm_gmult_4bit((uint64_t *)ctx->Y, ctx->Htable);
             X += copy_len;
             Xlen -= copy_len;
         }
@@ -189,8 +199,8 @@ static void ghash_update(GHASH_CTX *ctx, const uint8_t *X, int Xlen)
 
     while (Xlen >= 16)
     {
-        XOR128(ctx->Y, ctx->Y, X);
-        gcm_gmult_4bit(ctx->Y, ctx->Htable);
+        XOR128((uint32_t *)ctx->Y, (uint32_t *)ctx->Y, (uint32_t *)X);
+        gcm_gmult_4bit((uint64_t *)ctx->Y, ctx->Htable);
         X += 16;
         Xlen -= 16;
     }
@@ -205,7 +215,7 @@ static int ghash_final(const GHASH_CTX *ctx, uint8_t *Y)
     {
         return -1;
     }
-    memcpy_u32(Y, ctx->Y, 16 / 4);
+    memcpy_u32((uint32_t *)Y, (uint32_t *)ctx->Y, 16 / 4);
     return 0;
 }
 
@@ -229,7 +239,7 @@ static void gctr_init(GCTR_CTX *ctx, const uint8_t *K, int K_len, const uint8_t 
 {
     ctx->K_len = K_len;
     memcpy(ctx->K, K, K_len);
-    memcpy_u32(ctx->CB, ICB, 16 / 4);
+    memcpy_u32((uint32_t *)ctx->CB, (uint32_t *)ICB, 16 / 4);
     ctx->total_len = 0;
     ctx->cipher = cipher;
 }
@@ -261,7 +271,7 @@ static void gctr_update(GCTR_CTX *ctx, const uint8_t *X, int Xlen, uint8_t *Y, i
             memcpy(ctx->buf + buf_len, X, copy_len);
 
             cipher(ctx->K, ctx->CB, T);
-            XOR128(Y, ctx->buf, T);
+            XOR128((uint32_t *)Y, (uint32_t *)ctx->buf, (uint32_t *)T);
             X += copy_len;
             Xlen -= copy_len;
             Y += 16;
@@ -273,7 +283,7 @@ static void gctr_update(GCTR_CTX *ctx, const uint8_t *X, int Xlen, uint8_t *Y, i
     while (Xlen >= 16)
     {
         cipher(ctx->K, ctx->CB, T);
-        XOR128(Y, X, T);
+        XOR128((uint32_t *)Y, (uint32_t *)X, (uint32_t *)T);
         X += 16;
         Xlen -= 16;
         Y += 16;
@@ -335,7 +345,7 @@ void gcm_init(GCM_CTX *ctx, cipher_f cipher, GCM_ENC_DEC_MODE enc_dec,
     __align4 uint8_t J0[16];
     if (IV_len == 12)
     {
-        memcpy_u32(J0, IV, 12 / 4);
+        memcpy_u32((uint32_t *)J0, (uint32_t *)IV, 12 / 4);
         J0[12] = 0;
         J0[13] = 0;
         J0[14] = 0;
@@ -358,7 +368,7 @@ void gcm_init(GCM_CTX *ctx, cipher_f cipher, GCM_ENC_DEC_MODE enc_dec,
         ghash_update(&ghash_ctx, pad, 16);
         ghash_final(&ghash_ctx, J0);
     }
-    memcpy_u32(ctx->J0, J0, 16 / 4);
+    memcpy_u32((uint32_t *)ctx->J0, (uint32_t *)J0, 16 / 4);
     inc32(J0);
     gctr_init(&(ctx->gctr), K, K_len, J0, cipher);
     ghash_init(&(ctx->ghash), H);
@@ -378,7 +388,7 @@ void gcm_updateAAD(GCM_CTX *ctx, const uint8_t *AAD, int AAD_len, bool is_last)
         int rest_len = A_len % 16;
         if (rest_len > 0)
         {
-            uint8_t pad[16] = {0};
+            __align4 uint8_t pad[16] = {0};
             ghash_update(&(ctx->ghash), pad, 16 - rest_len);
         }
     }
