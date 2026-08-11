@@ -114,9 +114,13 @@ static void gcm_gmult_4bit(uint64_t Xi[2], const u128 Htable[16])
         Z.hi ^= Htable[nlo].hi;
         Z.lo ^= Htable[nlo].lo;
     }
-
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
     Xi[0] = cc_swap_u64(Z.hi);
     Xi[1] = cc_swap_u64(Z.lo);
+#else
+    Xi[0] = Z.hi;
+    Xi[1] = Z.lo;
+#endif
 }
 
 /**
@@ -163,9 +167,13 @@ static inline void memcpy_u32(uint32_t *dst, const uint32_t *src, int len)
 static void ghash_init(GHASH_CTX *ctx, const uint8_t *H)
 {
     uint64_t *H_u64 = (uint64_t *)ctx->Y;
-
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
     H_u64[0] = cc_swap_u64(*((uint64_t *)H));
     H_u64[1] = cc_swap_u64(*((uint64_t *)(H + 8)));
+#else
+    H_u64[0] = *((uint64_t *)H);
+    H_u64[1] = *((uint64_t *)(H + 8));
+#endif
     gcm_init_4bit(ctx->Htable, H_u64);
     memset_128((uint32_t *)ctx->Y, 0);
     ctx->total_len = 0;
