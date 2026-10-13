@@ -8,6 +8,13 @@
 #define __align4 __attribute__((aligned(4)))
 #endif
 
+/* 注意：GCC 下把 aligned() 写在 typedef 名之后会把该类型的对齐“降”到指定值，
+   所以需要 8 字节对齐的类型（内部有 uint64_t 成员/按 64bit 访问的缓冲区）
+   必须显式声明 __align8，不能想当然地用 __align4 */
+#ifndef __align8
+#define __align8 __attribute__((aligned(8)))
+#endif
+
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 static inline uint32_t GET32(const uint8_t *p)
 {

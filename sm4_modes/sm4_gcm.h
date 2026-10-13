@@ -7,7 +7,7 @@
 typedef struct
 {
     GCM_CTX gcm;
-} __align4 SM4_GCM_CTX;
+} __align8 SM4_GCM_CTX;
 
 void sm4_gcm_init(SM4_GCM_CTX *ctx, GCM_ENC_DEC_MODE enc_dec, const uint8_t *key, const uint8_t *IV, int IV_len, int TAG_len);
 

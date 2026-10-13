@@ -7,7 +7,7 @@
 typedef struct
 {
     GCM_CTX gcm;
-} __align4 AES_GCM_CTX;
+} __align8 AES_GCM_CTX;
 
 void aes_gcm_init(AES_GCM_CTX *ctx, GCM_ENC_DEC_MODE enc_dec, const uint8_t *key, int key_len, const uint8_t *IV, int IV_len, int TAG_len);
 

@@ -140,42 +140,32 @@ static inline void XOR(uint8_t *Z, const uint8_t *X, const uint8_t *Y, int len)
     }
 }
 
-static inline void XOR128(uint32_t Z[4], const uint32_t X[4], const uint32_t Y[4])
+/**
+ * @brief 128bit 异或 Z = X ^ Y
+ *
+ * 只用于本模块自己声明的 16 字节缓冲区（已声明为 uint64_t[2]，8 字节对齐），
+ * 因此可以安全地按 64bit 访问。调用方传入的 in/out 缓冲区对齐不可知，
+ * 不能用这个函数，统一用字节方式的 XOR()。
+ */
+static inline void XOR128(uint64_t Z[2], const uint64_t X[2], const uint64_t Y[2])
 {
     Z[0] = X[0] ^ Y[0];
     Z[1] = X[1] ^ Y[1];
-    Z[2] = X[2] ^ Y[2];
-    Z[3] = X[3] ^ Y[3];
 }
 
-static inline void memset_128(uint32_t *X, uint32_t v)
+static void ghash_init(GHASH_CTX *ctx, const uint64_t H[2])
 {
-    X[0] = v;
-    X[1] = v;
-    X[2] = v;
-    X[3] = v;
-}
-static inline void memcpy_u32(uint32_t *dst, const uint32_t *src, int len)
-{
-    int i;
-    for (i = 0; i < len; i++)
-    {
-        dst[i] = src[i];
-    }
-}
+    uint64_t H_u64[2];
 
-static void ghash_init(GHASH_CTX *ctx, const uint8_t *H)
-{
-    uint64_t *H_u64 = (uint64_t *)ctx->Y;
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-    H_u64[0] = cc_swap_u64(*((uint64_t *)H));
-    H_u64[1] = cc_swap_u64(*((uint64_t *)(H + 8)));
+    H_u64[0] = cc_swap_u64(H[0]);
+    H_u64[1] = cc_swap_u64(H[1]);
 #else
-    H_u64[0] = *((uint64_t *)H);
-    H_u64[1] = *((uint64_t *)(H + 8));
+    H_u64[0] = H[0];
+    H_u64[1] = H[1];
 #endif
     gcm_init_4bit(ctx->Htable, H_u64);
-    memset_128((uint32_t *)ctx->Y, 0);
+    memset(ctx->Y, 0, 16);
     ctx->total_len = 0;
 }
 static void ghash_update(GHASH_CTX *ctx, const uint8_t *X, int Xlen)
@@ -184,22 +174,22 @@ static void ghash_update(GHASH_CTX *ctx, const uint8_t *X, int Xlen)
     {
         return;
     }
-    int buf_len = ctx->total_len % 16;
-    ctx->total_len += Xlen;
+    int buf_len = (int)(ctx->total_len % 16);
+    ctx->total_len += (uint64_t)Xlen;
 
     if (buf_len > 0)
     {
         if ((buf_len + Xlen) < 16)
         {
-            memcpy(ctx->buf + buf_len, X, Xlen);
+            memcpy((uint8_t *)ctx->buf + buf_len, X, Xlen);
             return;
         }
         else
         {
             int copy_len = 16 - buf_len;
-            memcpy(ctx->buf + buf_len, X, copy_len);
-            XOR128((uint32_t *)ctx->Y, (uint32_t *)ctx->Y, (uint32_t *)ctx->buf);
-            gcm_gmult_4bit((uint64_t *)ctx->Y, ctx->Htable);
+            memcpy((uint8_t *)ctx->buf + buf_len, X, copy_len);
+            XOR128(ctx->Y, ctx->Y, ctx->buf);
+            gcm_gmult_4bit(ctx->Y, ctx->Htable);
             X += copy_len;
             Xlen -= copy_len;
         }
@@ -207,8 +197,9 @@ static void ghash_update(GHASH_CTX *ctx, const uint8_t *X, int Xlen)
 
     while (Xlen >= 16)
     {
-        XOR128((uint32_t *)ctx->Y, (uint32_t *)ctx->Y, (uint32_t *)X);
-        gcm_gmult_4bit((uint64_t *)ctx->Y, ctx->Htable);
+        /* X 是调用方缓冲区，对齐不可知，按字节异或 */
+        XOR((uint8_t *)ctx->Y, (const uint8_t *)ctx->Y, X, 16);
+        gcm_gmult_4bit(ctx->Y, ctx->Htable);
         X += 16;
         Xlen -= 16;
     }
@@ -223,7 +214,7 @@ static int ghash_final(const GHASH_CTX *ctx, uint8_t *Y)
     {
         return -1;
     }
-    memcpy_u32((uint32_t *)Y, (uint32_t *)ctx->Y, 16 / 4);
+    memcpy(Y, ctx->Y, 16);
     return 0;
 }
 
@@ -243,11 +234,11 @@ static void inc32(uint8_t CTR[16])
         CTR[i]++;
     }
 }
-static void gctr_init(GCTR_CTX *ctx, const uint8_t *K, int K_len, const uint8_t *ICB, cipher_f cipher)
+static void gctr_init(GCTR_CTX *ctx, const uint8_t *K, int K_len, const void *ICB, cipher_f cipher)
 {
     ctx->K_len = K_len;
     memcpy(ctx->K, K, K_len);
-    memcpy_u32((uint32_t *)ctx->CB, (uint32_t *)ICB, 16 / 4);
+    memcpy(ctx->CB, ICB, 16);
     ctx->total_len = 0;
     ctx->cipher = cipher;
 }
@@ -262,41 +253,43 @@ static void gctr_update(GCTR_CTX *ctx, const uint8_t *X, int Xlen, uint8_t *Y, i
         return;
     }
 
-    int buf_len = ctx->total_len % 16;
-    ctx->total_len += Xlen;
+    int buf_len = (int)(ctx->total_len % 16);
+    ctx->total_len += (uint64_t)Xlen;
     cipher_f cipher = ctx->cipher;
 
     if (buf_len > 0)
     {
         if ((buf_len + Xlen) < 16)
         {
-            memcpy(ctx->buf + buf_len, X, Xlen);
+            memcpy((uint8_t *)ctx->buf + buf_len, X, Xlen);
             return;
         }
         else
         {
             int copy_len = 16 - buf_len;
-            memcpy(ctx->buf + buf_len, X, copy_len);
+            memcpy((uint8_t *)ctx->buf + buf_len, X, copy_len);
 
-            cipher(ctx->K, ctx->CB, T);
-            XOR128((uint32_t *)Y, (uint32_t *)ctx->buf, (uint32_t *)T);
+            cipher(ctx->K, (uint8_t *)ctx->CB, T);
+            /* Y 是调用方缓冲区，对齐不可知，按字节异或 */
+            XOR(Y, (const uint8_t *)ctx->buf, T, 16);
             X += copy_len;
             Xlen -= copy_len;
             Y += 16;
             *Ylen += 16;
-            inc32(ctx->CB);
+            inc32((uint8_t *)ctx->CB);
         }
     }
 
     while (Xlen >= 16)
     {
-        cipher(ctx->K, ctx->CB, T);
-        XOR128((uint32_t *)Y, (uint32_t *)X, (uint32_t *)T);
+        cipher(ctx->K, (uint8_t *)ctx->CB, T);
+        /* X、Y 都是调用方缓冲区，按字节异或 */
+        XOR(Y, X, T, 16);
         X += 16;
         Xlen -= 16;
         Y += 16;
         *Ylen += 16;
-        inc32(ctx->CB);
+        inc32((uint8_t *)ctx->CB);
     }
     if (Xlen > 0)
     {
@@ -309,11 +302,11 @@ static void gctr_final(GCTR_CTX *ctx, uint8_t *Y, int *Ylen)
     __align4 uint8_t T[16];
 
     *Ylen = 0;
-    int buf_len = ctx->total_len % 16;
+    int buf_len = (int)(ctx->total_len % 16);
     if (buf_len > 0)
     {
-        ctx->cipher(ctx->K, ctx->CB, T);
-        XOR(Y, ctx->buf, T, buf_len);
+        ctx->cipher(ctx->K, (uint8_t *)ctx->CB, T);
+        XOR(Y, (const uint8_t *)ctx->buf, T, buf_len);
         *Ylen += buf_len;
     }
 }
@@ -347,17 +340,20 @@ void gcm_init(GCM_CTX *ctx, cipher_f cipher, GCM_ENC_DEC_MODE enc_dec,
     ctx->tag_len = TAG_len;
     ctx->AAD_len = 0;
 
-    __align4 uint8_t H[16] = {0};
-    cipher(K, H, H);
+    /* 16 字节缓冲区都用对齐的基本类型声明，配合字节视图访问，
+       既不会出现未对齐访问，也不会有严格别名问题 */
+    uint64_t H[2] = {0};
+    cipher(K, (uint8_t *)H, (uint8_t *)H);
 
-    __align4 uint8_t J0[16];
+    uint64_t J0[2] = {0};
+    uint8_t *J0_u8 = (uint8_t *)J0; /* 字符类型的字节视图是合法的 */
     if (IV_len == 12)
     {
-        memcpy_u32((uint32_t *)J0, (uint32_t *)IV, 12 / 4);
-        J0[12] = 0;
-        J0[13] = 0;
-        J0[14] = 0;
-        J0[15] = 1;
+        memcpy(J0_u8, IV, 12);
+        J0_u8[12] = 0;
+        J0_u8[13] = 0;
+        J0_u8[14] = 0;
+        J0_u8[15] = 1;
     }
     else
     {
@@ -374,10 +370,10 @@ void gcm_init(GCM_CTX *ctx, cipher_f cipher, GCM_ENC_DEC_MODE enc_dec,
         uint64_t bit_len = (uint64_t)IV_len * 8;
         u64_2_u8(bit_len, pad + 8);
         ghash_update(&ghash_ctx, pad, 16);
-        ghash_final(&ghash_ctx, J0);
+        ghash_final(&ghash_ctx, J0_u8);
     }
-    memcpy_u32((uint32_t *)ctx->J0, (uint32_t *)J0, 16 / 4);
-    inc32(J0);
+    memcpy(ctx->J0, J0, 16);
+    inc32(J0_u8);
     gctr_init(&(ctx->gctr), K, K_len, J0, cipher);
     ghash_init(&(ctx->ghash), H);
 }
@@ -386,14 +382,13 @@ void gcm_updateAAD(GCM_CTX *ctx, const uint8_t *AAD, int AAD_len, bool is_last)
 {
     if (AAD_len > 0)
     {
-        ctx->AAD_len += AAD_len;
+        ctx->AAD_len += (uint64_t)AAD_len;
         ghash_update(&(ctx->ghash), AAD, AAD_len);
     }
 
     if (is_last)
     {
-        int A_len = ctx->ghash.total_len;
-        int rest_len = A_len % 16;
+        int rest_len = (int)(ctx->ghash.total_len % 16);
         if (rest_len > 0)
         {
             __align4 uint8_t pad[16] = {0};
@@ -418,16 +413,16 @@ void gcm_update(GCM_CTX *ctx, const uint8_t *in, int in_len, uint8_t *out, int *
 
 static void gcm_retrieve_tag(GCM_CTX *ctx, uint8_t *tag, int tag_len)
 {
-    int AAD_len = ctx->AAD_len;
-    int in_len = ctx->gctr.total_len;
-    int rest_len = in_len % 16;
+    uint64_t AAD_len = ctx->AAD_len;
+    uint64_t in_len = ctx->gctr.total_len;
+    uint64_t rest_len = in_len % 16;
     uint8_t pad[16] = {0};
     if (rest_len > 0)
     {
-        ghash_update(&(ctx->ghash), pad, 16 - rest_len);
+        ghash_update(&(ctx->ghash), pad, (int)(16 - rest_len));
     }
-    uint64_t A_bit_len = (uint64_t)AAD_len * 8;
-    uint64_t in_bit_len = (uint64_t)in_len * 8;
+    uint64_t A_bit_len = AAD_len * 8;
+    uint64_t in_bit_len = in_len * 8;
     u64_2_u8(A_bit_len, pad);
     u64_2_u8(in_bit_len, pad + 8);
     ghash_update(&(ctx->ghash), pad, 16);
@@ -435,13 +430,11 @@ static void gcm_retrieve_tag(GCM_CTX *ctx, uint8_t *tag, int tag_len)
     __align4 uint8_t S[16], T1[16];
     ghash_final(&(ctx->ghash), S);
 
-    int T1_len = 0, tmp_len = 0;
+    int tmp_len = 0;
     GCTR_CTX gctr;
     gctr_init(&gctr, ctx->gctr.K, ctx->gctr.K_len, ctx->J0, ctx->gctr.cipher);
     gctr_update(&gctr, S, 16, T1, &tmp_len);
-    T1_len += tmp_len;
     gctr_final(&gctr, T1 + tmp_len, &tmp_len);
-    T1_len += tmp_len;
     memcpy(tag, T1, tag_len);
 }
 
