@@ -31,3 +31,11 @@ void hmac_sha0_final(HMAC_SHA0_CTX *ctx, uint8_t *mac)
 {
     hmac_final(&ctx->hmac_ctx, &ctx->hash_ctx, mac);
 }
+
+void hmac_sha0(const uint8_t *key, size_t key_len, const uint8_t *data, size_t data_len, uint8_t *mac)
+{
+    HMAC_SHA0_CTX ctx;
+    hmac_sha0_init(&ctx, key, key_len);
+    hmac_sha0_update(&ctx, data, data_len);
+    hmac_sha0_final(&ctx, mac);
+}

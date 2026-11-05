@@ -31,13 +31,13 @@ typedef struct
     size_t hash_digest_size; // hash摘要大小：SM3->32字节, SHA256->32字节，SHA512->64字节
 
     uint8_t key[128];
-} __align4 HMAC_CTX;
+} __align4 CC_HMAC_CTX;
 
-void hmac_init(HMAC_CTX *ctx, void *hash_ctx, const uint8_t *key, size_t key_len,
+void hmac_init(CC_HMAC_CTX *ctx, void *hash_ctx, const uint8_t *key, size_t key_len,
                hash_init_f hash_init, hash_update_f hash_update, hash_final_f hash_final, size_t hash_block_len, size_t hash_digest_len);
 
-void hmac_update(HMAC_CTX *ctx, void *hash_ctx, const uint8_t *data, size_t data_len);
+void hmac_update(CC_HMAC_CTX *ctx, void *hash_ctx, const uint8_t *data, size_t data_len);
 
-void hmac_final(HMAC_CTX *ctx, void *hash_ctx, uint8_t *mac);
+void hmac_final(CC_HMAC_CTX *ctx, void *hash_ctx, uint8_t *mac);
 
 #endif /* _HMAC_H_ */

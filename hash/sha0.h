@@ -14,4 +14,6 @@ void sha0_init(SHA0_CTX *ctx);
 void sha0_update(SHA0_CTX *ctx, const uint8_t *data, size_t len);
 void sha0_final(SHA0_CTX *ctx, uint8_t hash[20]);
 
+void sha0(const uint8_t *data, size_t len, uint8_t hash[20]);
+
 #endif // _SHA0_H

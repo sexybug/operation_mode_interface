@@ -104,3 +104,11 @@ void sha0_final(SHA0_CTX *ctx, uint8_t hash[20])
     for (int i = 0; i < 20; i++)
         hash[i] = (ctx->state[i / 4] >> (24 - (i % 4) * 8)) & 255;
 }
+
+void sha0(const uint8_t *data, size_t len, uint8_t hash[20])
+{
+    SHA0_CTX ctx;
+    sha0_init(&ctx);
+    sha0_update(&ctx, data, len);
+    sha0_final(&ctx, hash);
+}

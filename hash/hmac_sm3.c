@@ -31,3 +31,11 @@ void hmac_sm3_final(HMAC_SM3_CTX *ctx, uint8_t *mac)
 {
     hmac_final(&ctx->hmac_ctx, &ctx->hash_ctx, mac);
 }
+
+void hmac_sm3(const uint8_t *key, size_t key_len, const uint8_t *data, size_t data_len, uint8_t *mac)
+{
+    HMAC_SM3_CTX ctx;
+    hmac_sm3_init(&ctx, key, key_len);
+    hmac_sm3_update(&ctx, data, data_len);
+    hmac_sm3_final(&ctx, mac);
+}

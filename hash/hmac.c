@@ -5,7 +5,7 @@
 #define IPAD 0x36
 #define OPAD 0x5C
 
-void hmac_init(HMAC_CTX *ctx, void *hash_ctx, const uint8_t *key, size_t key_len,
+void hmac_init(CC_HMAC_CTX *ctx, void *hash_ctx, const uint8_t *key, size_t key_len,
                hash_init_f hash_init, hash_update_f hash_update, hash_final_f hash_final, size_t hash_block_len, size_t hash_digest_len)
 {
     if (hash_block_len > 128)
@@ -43,12 +43,12 @@ void hmac_init(HMAC_CTX *ctx, void *hash_ctx, const uint8_t *key, size_t key_len
     hash_update(hash_ctx, key_ipad, hash_block_len);
 }
 
-void hmac_update(HMAC_CTX *ctx, void *hash_ctx, const uint8_t *data, size_t data_len)
+void hmac_update(CC_HMAC_CTX *ctx, void *hash_ctx, const uint8_t *data, size_t data_len)
 {
     ctx->hash_update(hash_ctx, data, data_len);
 }
 
-void hmac_final(HMAC_CTX *ctx, void *hash_ctx, uint8_t *mac)
+void hmac_final(CC_HMAC_CTX *ctx, void *hash_ctx, uint8_t *mac)
 {
     __align4 uint8_t buf[192];
     size_t i;
