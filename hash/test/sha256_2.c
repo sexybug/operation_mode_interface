@@ -8,8 +8,9 @@ int main(void)
 {
     EVP_MD_CTX *ctx = NULL;
     EVP_MD *sha256 = NULL;
-    const unsigned char msg[256] = {0};
-    unsigned int len = 65;
+    const unsigned char msg[64*1024] = {0};
+    unsigned int msg_len = 32*1024;
+    unsigned int digest_len = 0;
     unsigned char *outdigest = NULL;
     int ret = 1;
 
@@ -39,7 +40,7 @@ int main(void)
      * Pass the message to be digested. This can be passed in over multiple
      * EVP_DigestUpdate calls if necessary
      */
-    if (!EVP_DigestUpdate(ctx, msg, sizeof(msg)))
+    if (!EVP_DigestUpdate(ctx, msg, msg_len))
         goto err;
 
     /* Allocate the output buffer */
@@ -48,12 +49,12 @@ int main(void)
         goto err;
 
     /* Now calculate the digest itself */
-    if (!EVP_DigestFinal_ex(ctx, outdigest, &len))
+    if (!EVP_DigestFinal_ex(ctx, outdigest, &digest_len))
         goto err;
 
     /* Print out the digest result */
-    // BIO_dump_fp(stdout, outdigest, len);
-    print_u8("digest",outdigest, len);
+    // BIO_dump_fp(stdout, outdigest, digest_len);
+    print_u8("digest",outdigest, digest_len);
 
     ret = 0;
 
