@@ -215,8 +215,13 @@
 
 				"-I",
 				"D:/msys64/ucrt64/include",
+				"-I",
+				"${workspaceFolder}/GmSSL-3.2.0-win64/include",
 				"-L",
 				"D:/msys64/ucrt64/lib",
+				"-L",
+				"${workspaceFolder}/GmSSL-3.2.0-win64/lib",
+				"-lgmssl",
 				"-lssl",
 				"-lcrypto",
 				"-o",

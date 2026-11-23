@@ -6,7 +6,8 @@
 				"${workspaceFolder}/**",
 				"${workspaceFolder}/test",
 				"C:/msys64/ucrt64/include/openssl/**",
-				"C:/msys64/ucrt64/include"
+				"C:/msys64/ucrt64/include",
+				"${workspaceFolder}/GmSSL-3.2.0-win64/include"
 			],
 			"defines": ["_DEBUG", "UNICODE", "_UNICODE"],
 			"windowsSdkVersion": "10.0.22621.0",
